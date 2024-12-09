@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+from typing import Optional
 from pydantic import BaseModel
 
 class Token(BaseModel):
@@ -6,7 +6,8 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 class TokenPayload(BaseModel):
-    sub: Optional[str] = None  # 用户ID或管理员ID
-    role: Optional[str] = None  # 用户角色：user, admin, super_admin
-    exp: Optional[int] = None  # 过期时间
-    type: Optional[str] = None  # token类型：user, admin
+    sub: str  # 用户ID或管理员ID
+    exp: int  # 过期时间
+    type: str  # token类型：user, admin
+    role: Optional[str] = None  # 角色：user, admin, super_admin
+    status: Optional[str] = None  # 用户状态

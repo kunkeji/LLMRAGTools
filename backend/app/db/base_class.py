@@ -4,11 +4,15 @@ from sqlalchemy.orm import DeclarativeBase
 
 class Base(DeclarativeBase):
     """
-    基础模型类
+    SQLAlchemy 声明性基类
     """
+    id: Any
+    __name__: str
+    
+    # 自动生成表名
     @declared_attr
     def __tablename__(cls) -> str:
         """
-        自动生成表名
+        将类名转换为小写作为表名
         """
         return cls.__name__.lower() 

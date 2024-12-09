@@ -33,9 +33,9 @@ def admin_login(
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return {
         "access_token": jwt.create_access_token(
-            subject=admin.id,
-            expires_delta=access_token_expires,
+            subject=str(admin.id),
             token_type="admin",
+            expires_delta=access_token_expires,
             extra_data={"role": admin.role}
         ),
         "token_type": "bearer",

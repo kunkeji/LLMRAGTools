@@ -36,7 +36,12 @@ def get_current_user(
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        token_data = TokenPayload(**payload)
+        token_data = TokenPayload(
+            sub=payload["sub"],
+            exp=payload["exp"],
+            type=payload["type"],
+            status=payload.get("status")
+        )
         if token_data.type != "user":
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -47,11 +52,11 @@ def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="无法验证凭证",
         )
-    user = db.query(User).filter(User.id == int(token_data.sub)).first()
+    user = db.query(User).filter(User.id == token_data.sub).first()
     if not user:
         raise HTTPException(status_code=404, detail="用户不存在")
-    if not user.is_active:
-        raise HTTPException(status_code=400, detail="用户未激活")
+    if user.status != token_data.status:
+        raise HTTPException(status_code=400, detail="用户状态已变更，请重新登录")
     return user
 
 def get_current_admin(
@@ -62,7 +67,12 @@ def get_current_admin(
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        token_data = TokenPayload(**payload)
+        token_data = TokenPayload(
+            sub=payload["sub"],
+            exp=payload["exp"],
+            type=payload["type"],
+            role=payload.get("role")
+        )
         if token_data.type != "admin":
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -73,11 +83,13 @@ def get_current_admin(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="无法验证凭证",
         )
-    admin = db.query(Admin).filter(Admin.id == int(token_data.sub)).first()
+    admin = db.query(Admin).filter(Admin.id == token_data.sub).first()
     if not admin:
         raise HTTPException(status_code=404, detail="管理员不存在")
     if not admin.is_active:
         raise HTTPException(status_code=400, detail="管理员账号未激活")
+    if admin.role != token_data.role:
+        raise HTTPException(status_code=400, detail="管理员角色已变更，请重新登录")
     return admin
 
 def get_current_active_user(
