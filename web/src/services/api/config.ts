@@ -6,5 +6,7 @@ export const API_URLS = {
     REGISTER: '/api/user/register',
     PROFILE: '/api/user/me',
     VERIFY_CODE: '/api/user/send-verification-code',
+    FORGOT_PASSWORD: '/api/user/password/forgot',
+    RESET_PASSWORD: '/api/user/password/reset',
   },
 } as const; 

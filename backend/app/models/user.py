@@ -72,11 +72,11 @@ class User(BaseDBModel):
             "username": self.username,
             "email": self.email,
             "is_active": self.is_active,
-            "nickname": self.nickname,
+            "nickname": self.nickname or self.username,
             "avatar": self.avatar,
             "phone_number": self.phone_number,
             "status": self.status,
             "last_login": self.last_login.isoformat() if self.last_login else None,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat()
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }

@@ -25,7 +25,7 @@ async def send_verification_code(
     db: Session = Depends(get_db),
     email_in: VerificationCodeCreate,
     background_tasks: BackgroundTasks,
-) -> ResponseModel:
+) -> dict:
     """
     发送验证码
     """
@@ -63,12 +63,12 @@ async def send_verification_code(
     
     return response_success(message="验证码已发送，请查收邮件")
 
-@router.post("/register", response_model=ResponseModel[UserSchema])
+@router.post("/register")
 def register(
     *,
     db: Session = Depends(get_db),
     user_in: UserCreate,
-) -> ResponseModel:
+) -> dict:
     """
     用户注册
     """
@@ -104,11 +104,11 @@ def register(
     user = crud_user.create(db, obj_in=user_in)
     return response_success(data=user)
 
-@router.post("/login", response_model=ResponseModel[Token])
+@router.post("/login")
 def login(
     db: Session = Depends(get_db),
     form_data: OAuth2PasswordRequestForm = Depends()
-) -> ResponseModel:
+) -> dict:
     """
     用户登录获取token
     """
@@ -132,10 +132,10 @@ def login(
     }
     return response_success(data=token)
 
-@router.get("/me", response_model=ResponseModel[UserSchema])
+@router.get("/me")
 def read_user_me(
     current_user: User = Depends(get_current_user),
-) -> ResponseModel:
+) -> dict:
     """
     获取当前用户信息
     """

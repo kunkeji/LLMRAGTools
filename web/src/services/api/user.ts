@@ -18,6 +18,12 @@ export interface SendVerificationCodeParams {
   purpose?: 'register' | 'reset_password';
 }
 
+export interface ResetPasswordParams {
+  email: string;
+  verification_code: string;
+  new_password: string;
+}
+
 export const userApi = {
   // 登录
   login: (params: LoginParams) => {
@@ -46,6 +52,22 @@ export const userApi = {
   // 发送验证码
   sendVerificationCode: (params: SendVerificationCodeParams) => {
     return apiRequest<void>(API_URLS.USER.VERIFY_CODE, {
+      method: 'POST',
+      data: params,
+    });
+  },
+
+  // 发送重置密码验证码
+  sendResetPasswordCode: (email: string) => {
+    return apiRequest<void>(API_URLS.USER.FORGOT_PASSWORD, {
+      method: 'POST',
+      data: email,
+    });
+  },
+
+  // 重置密码
+  resetPassword: (params: ResetPasswordParams) => {
+    return apiRequest<void>(API_URLS.USER.RESET_PASSWORD, {
       method: 'POST',
       data: params,
     });

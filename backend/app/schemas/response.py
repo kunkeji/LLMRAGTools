@@ -1,5 +1,5 @@
-from typing import Generic, Optional, TypeVar, Any
-from pydantic import BaseModel
+from typing import Generic, Optional, TypeVar, Any, Dict
+from pydantic import BaseModel, Field
 from enum import Enum
 from datetime import datetime
 
@@ -20,61 +20,67 @@ class ResponseModel(BaseModel, Generic[T]):
     """
     统一响应模型
     """
-    code: str = ResponseCode.SUCCESS
-    message: str = "Success"
-    data: Optional[T] = None
+    code: str = Field(default=ResponseCode.SUCCESS, description="响应状态码")
+    message: str = Field(default="Success", description="响应消息")
+    data: Optional[T] = Field(default=None, description="响应数据")
 
     class Config:
         from_attributes = True
         arbitrary_types_allowed = True
-        json_schema_extra = {
-            "example": {
-                "code": "200",
-                "message": "Success",
-                "data": None
-            }
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None
         }
 
-def serialize_sqlalchemy(obj: Any) -> Any:
+def serialize_datetime(obj: Any) -> Any:
     """
-    序列化 SQLAlchemy 模型
+    序列化日期时间
+    """
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    return obj
+
+def serialize_model(obj: Any) -> Any:
+    """
+    序列化模型对象
     """
     if hasattr(obj, 'to_dict'):
         return obj.to_dict()
+    elif hasattr(obj, 'model_dump'):
+        return obj.model_dump()
     elif hasattr(obj, '__dict__'):
-        result = {}
-        for key, value in obj.__dict__.items():
-            if not key.startswith('_'):
-                if isinstance(value, datetime):
-                    result[key] = value.isoformat()
-                else:
-                    result[key] = value
-        return result
+        return {
+            k: serialize_datetime(v)
+            for k, v in obj.__dict__.items()
+            if not k.startswith('_')
+        }
     return obj
 
-def response_success(*, data: Any = None, message: str = "Success") -> ResponseModel:
+def serialize_data(data: Any) -> Any:
+    """
+    序列化数据
+    """
+    if data is None:
+        return None
+    if isinstance(data, (list, tuple)):
+        return [serialize_model(item) for item in data]
+    return serialize_model(data)
+
+def response_success(*, data: Any = None, message: str = "Success") -> Dict:
     """
     成功响应
     """
-    # 序列化数据
-    if data is not None:
-        if isinstance(data, (list, tuple)):
-            data = [serialize_sqlalchemy(item) for item in data]
-        else:
-            data = serialize_sqlalchemy(data)
-    
-    return ResponseModel(
-        code=ResponseCode.SUCCESS,
-        message=message,
-        data=data
-    )
+    return {
+        "code": ResponseCode.SUCCESS,
+        "message": message,
+        "data": serialize_data(data)
+    }
 
-def response_error(*, code: str = ResponseCode.BAD_REQUEST, message: str) -> ResponseModel:
+def response_error(*, code: str = ResponseCode.BAD_REQUEST, message: str) -> Dict:
     """
     错误响应
     """
-    return ResponseModel(
-        code=code,
-        message=message,
-        data=None
-    )
+    return {
+        "code": code,
+        "message": message,
+        "data": None
+    }

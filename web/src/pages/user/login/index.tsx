@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { history, Link } from '@umijs/max';
+import { history, useModel } from '@umijs/max';
 import { userApi } from '@/services/api';
 import styles from './index.less';
 
 const LoginPage: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const { refresh } = useModel('@@initialState');
+
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      history.push('/');
+    }
+  }, []);
 
   const handleSubmit = async (values: any) => {
     try {
@@ -18,7 +26,14 @@ const LoginPage: React.FC = () => {
       });
       localStorage.setItem('access_token', data.access_token);
       message.success('登录成功');
-      history.push('/dashboard');
+      
+      // 刷新用户信息
+      await refresh();
+      
+      // 获取重定向地址
+      const urlParams = new URL(window.location.href).searchParams;
+      const redirect = urlParams.get('redirect');
+      history.push(redirect || '/dashboard');
     } catch (error: any) {
       // 错误处理已经在 apiRequest 中统一处理
     } finally {
@@ -76,7 +91,8 @@ const LoginPage: React.FC = () => {
             </Form.Item>
 
             <div className={styles.other}>
-              <Link to="/user/register">注册账号</Link>
+              <a href="/user/register">注册账号</a>
+              <a href="/user/forgot-password">忘记密码</a>
             </div>
           </Form>
         </div>

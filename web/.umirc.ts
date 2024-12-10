@@ -6,7 +6,10 @@ export default defineConfig({
   model: {},
   initialState: {},
   request: {},
-  layout: false,
+  layout: {
+    title: '代理工具平台',
+    locale: false,
+  },
   routes: [
     {
       path: '/user',
@@ -14,20 +17,18 @@ export default defineConfig({
       routes: [
         { path: '/user/login', component: './user/login' },
         { path: '/user/register', component: './user/register' },
+        { path: '/user/forgot-password', component: './user/forgot-password' },
       ],
     },
     {
       path: '/',
-      component: '@/layouts/BasicLayout',
-      wrappers: ['@/wrappers/auth'],
-      routes: [
-        { path: '/', redirect: '/dashboard' },
-        {
-          path: '/dashboard',
-          name: '仪表盘',
-          component: './dashboard',
-        },
-      ],
+      redirect: '/dashboard',
+    },
+    {
+      path: '/dashboard',
+      name: '仪表盘',
+      icon: 'dashboard',
+      component: './dashboard',
     },
     {
       path: '*',

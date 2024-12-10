@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, message } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { history, Link } from 'umi';
@@ -10,6 +10,13 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
+
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      history.push('/');
+    }
+  }, []);
 
   const startCountdown = () => {
     setCountdown(60);
