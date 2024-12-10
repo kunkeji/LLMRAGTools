@@ -81,6 +81,8 @@ alembic upgrade head
 run.bat
 
 # Linux/Mac
+# 设置端口
+export PORT=8111
 ./run.sh
 ```
 

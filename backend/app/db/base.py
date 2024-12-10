@@ -3,3 +3,4 @@
 from app.db.base_class import Base  # noqa
 from app.models.user import User  # noqa
 from app.models.admin import Admin  # noqa
+from app.models.verification_code import VerificationCode  # noqa

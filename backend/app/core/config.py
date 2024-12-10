@@ -59,9 +59,13 @@ class Settings(BaseSettings):
     REDIS_DB: int = 0
     REDIS_PASSWORD: Optional[str] = None
 
-    # 其他配置
+    # 国际化配置
     TIMEZONE: str = "Asia/Shanghai"
     DEFAULT_LANGUAGE: str = "zh-cn"
+
+    class Config:
+        case_sensitive = True
+        env_file = ".env"
 
     @property
     def ALLOWED_HOSTS_LIST(self) -> List[str]:
@@ -69,10 +73,6 @@ class Settings(BaseSettings):
             return json.loads(self.ALLOWED_HOSTS)
         except json.JSONDecodeError:
             return ["*"]
-
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
 
 @lru_cache()
 def get_settings():

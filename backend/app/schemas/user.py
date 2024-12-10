@@ -17,6 +17,7 @@ class UserCreate(UserBase):
     email: EmailStr
     username: str
     password: str
+    verification_code: str
 
 # Properties to receive via API on update
 class UserUpdate(UserBase):
