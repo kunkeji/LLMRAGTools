@@ -6,8 +6,9 @@ from app.api.v1.deps.auth import get_current_active_user, get_db
 from app.crud import crud_user
 from app.models.user import User
 from app.schemas.user import UserUpdate
-from app.schemas.response import response_success
-from app.utils.file import save_avatar
+from app.schemas.response import response_success, ResponseModel
+from app.utils.file import save_avatar, delete_avatar
+from app.schemas.avatar import AvatarUploadResponse, DEFAULT_AVATAR_CONFIG
 
 router = APIRouter()
 
@@ -46,7 +47,7 @@ def update_user_profile(
     user = crud_user.update(db, db_obj=current_user, obj_in=user_in)
     return response_success(data=user)
 
-@router.post("/me/avatar", summary="更新用户头像")
+@router.post("/me/avatar", summary="更新用户头像", response_model=ResponseModel[AvatarUploadResponse])
 async def update_user_avatar(
     *,
     db: Session = Depends(get_db),
@@ -58,29 +59,28 @@ async def update_user_avatar(
     
     - 支持的图片格式：jpg, jpeg, png
     - 最大文件大小：2MB
+    - 最小尺寸：100x100
+    - 最大尺寸：800x800
+    - 图片质量：85%
     """
-    # 验证文件类型
-    allowed_types = {"image/jpeg", "image/png"}
-    if file.content_type not in allowed_types:
-        raise HTTPException(
-            status_code=400,
-            detail="不支持的文件类型，仅支持JPG和PNG格式"
-        )
-    
     # 保存头像文件
-    avatar_url = await save_avatar(file, current_user.id)
+    avatar_response = await save_avatar(file, current_user.id)
+    
+    # 如果用户已有头像，删除旧头像
+    if current_user.avatar:
+        delete_avatar(current_user.avatar)
     
     # 更新用户头像URL
-    user = crud_user.update(
+    crud_user.update(
         db,
         db_obj=current_user,
-        obj_in={"avatar": avatar_url}
+        obj_in={"avatar": avatar_response.url}
     )
     
     return response_success(
-        data={"avatar_url": avatar_url},
+        data=avatar_response,
         message="头像更新成功"
-    ) 
+    )
 
 
 

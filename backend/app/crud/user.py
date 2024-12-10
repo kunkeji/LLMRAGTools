@@ -6,7 +6,7 @@ from app.crud.base import CRUDBase
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
 from app.core.security.password import get_password_hash, verify_password
-from app.utils.file import delete_file
+from app.utils.file import delete_avatar
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
@@ -65,7 +65,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
         # 如果更新头像，删除旧头像文件
         if update_data.get("avatar") and db_obj.avatar:
-            delete_file(db_obj.avatar)
+            delete_avatar(db_obj.avatar)
 
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
@@ -93,7 +93,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         if user:
             # 删除头像文件
             if user.avatar:
-                delete_file(user.avatar)
+                delete_avatar(user.avatar)
             
             user.deleted_at = datetime.utcnow()
             user.is_active = False

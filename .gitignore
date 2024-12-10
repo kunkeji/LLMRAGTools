@@ -13,6 +13,7 @@ dist/
 build/
 *.egg-info/
 backend/alembic/
+backend/static/uploads/*
 
 # IDE
 .idea/
