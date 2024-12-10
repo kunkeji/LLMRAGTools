@@ -4,8 +4,16 @@ interface EnvConfig {
 }
 
 const config: EnvConfig = {
-  API_URL: process.env.API_URL || 'http://localhost:8112',
+  API_URL: process.env.API_URL || 'http://127.0.0.1:8112',
   API_PREFIX: process.env.API_PREFIX || '/api',
+};
+
+// 导出完整的 API URL
+export const getApiUrl = (path: string) => {
+  if (path.startsWith('http')) {
+    return path;
+  }
+  return `${config.API_URL}${path}`;
 };
 
 export default config; 

@@ -4,7 +4,7 @@
 import React from 'react';
 
 export async function getRoutes() {
-  const routes = {"1":{"path":"/user","layout":false,"id":"1"},"2":{"path":"/user/login","parentId":"1","id":"2"},"3":{"path":"/user/register","parentId":"1","id":"3"},"4":{"path":"/user/forgot-password","parentId":"1","id":"4"},"5":{"path":"/","redirect":"/dashboard","parentId":"ant-design-pro-layout","id":"5"},"6":{"path":"/dashboard","name":"仪表盘","icon":"dashboard","parentId":"ant-design-pro-layout","id":"6"},"7":{"path":"*","layout":false,"id":"7"},"ant-design-pro-layout":{"id":"ant-design-pro-layout","path":"/","isLayout":true}} as const;
+  const routes = {"1":{"path":"/user","layout":false,"id":"1"},"2":{"path":"/user/login","parentId":"1","id":"2"},"3":{"path":"/user/register","parentId":"1","id":"3"},"4":{"path":"/user/forgot-password","parentId":"1","id":"4"},"5":{"path":"/","redirect":"/dashboard","parentId":"ant-design-pro-layout","id":"5"},"6":{"path":"/dashboard","name":"仪表盘","icon":"dashboard","parentId":"ant-design-pro-layout","id":"6"},"7":{"name":"个人设置","icon":"setting","path":"account/settings","parentId":"ant-design-pro-layout","id":"7"},"8":{"path":"*","layout":false,"id":"8"},"ant-design-pro-layout":{"id":"ant-design-pro-layout","path":"/","isLayout":true}} as const;
   return {
     routes,
     routeComponents: {
@@ -14,7 +14,8 @@ export async function getRoutes() {
 '4': React.lazy(() => import(/* webpackChunkName: "p__user__forgot-password__index" */'@/pages/user/forgot-password/index.tsx')),
 '5': React.lazy(() => import('./EmptyRoute')),
 '6': React.lazy(() => import(/* webpackChunkName: "p__dashboard__index" */'@/pages/dashboard/index.tsx')),
-'7': React.lazy(() => import(/* webpackChunkName: "p__404" */'@/pages/404.tsx')),
+'7': React.lazy(() => import(/* webpackChunkName: "p__account__settings__index" */'@/pages/account/settings/index.tsx')),
+'8': React.lazy(() => import(/* webpackChunkName: "p__404" */'@/pages/404.tsx')),
 'ant-design-pro-layout': React.lazy(() => import(/* webpackChunkName: "umi__plugin-layout__Layout" */'D:/wwwroot/AgentTools/web/src/.umi/plugin-layout/Layout.tsx')),
 },
   };

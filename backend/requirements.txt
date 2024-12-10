@@ -18,6 +18,11 @@ python-json-logger==2.0.7
 python-dateutil==2.8.2
 pytz==2023.3.post1
 
+# 文件处理
+aiofiles==23.2.1
+Pillow==10.1.0
+python-magic==0.4.27
+
 # 开发依赖
 pytest==7.4.3
 black==23.10.1

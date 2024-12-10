@@ -9,6 +9,9 @@ declare namespace API {
     id: number;
     username: string;
     email: string;
+    nickname?: string;
+    phone_number?: string;
+    avatar?: string;
     status: 'active' | 'inactive';
     created_at: string;
     updated_at: string;

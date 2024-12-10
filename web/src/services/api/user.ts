@@ -24,6 +24,12 @@ export interface ResetPasswordParams {
   new_password: string;
 }
 
+export interface UpdateProfileParams {
+  nickname?: string;
+  phone_number?: string;
+  password?: string;
+}
+
 export const userApi = {
   // 登录
   login: (params: LoginParams) => {
@@ -58,10 +64,10 @@ export const userApi = {
   },
 
   // 发送重置密码验证码
-  sendResetPasswordCode: (email: string) => {
+  sendResetPasswordCode: (params: SendVerificationCodeParams) => {
     return apiRequest<void>(API_URLS.USER.FORGOT_PASSWORD, {
       method: 'POST',
-      data: email,
+      data: params,
     });
   },
 
@@ -70,6 +76,27 @@ export const userApi = {
     return apiRequest<void>(API_URLS.USER.RESET_PASSWORD, {
       method: 'POST',
       data: params,
+    });
+  },
+
+  // 更新用户信息
+  updateProfile: (params: UpdateProfileParams) => {
+    return apiRequest<API.CurrentUser>(API_URLS.USER.UPDATE_PROFILE, {
+      method: 'PUT',
+      data: params,
+    });
+  },
+
+  // 更新用户头像
+  updateAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiRequest<API.CurrentUser>(API_URLS.USER.UPDATE_AVATAR, {
+      method: 'POST',
+      data: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
 }; 

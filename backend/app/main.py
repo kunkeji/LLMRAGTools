@@ -6,6 +6,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
+import os
 
 from app.core.config import settings
 from app.core.exceptions import http_exception_handler, validation_exception_handler, python_exception_handler
@@ -19,7 +20,13 @@ from datetime import datetime
 tz = pytz.timezone(settings.TIMEZONE)
 
 # 设置静态文件目录
-STATIC_DIR = Path(__file__).parent.parent.parent / "static"
+ROOT_DIR = Path(__file__).parent.parent
+STATIC_DIR = ROOT_DIR / "static"
+UPLOAD_DIR = STATIC_DIR / "uploads"
+
+# 确保目录存在
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+(UPLOAD_DIR / "avatars").mkdir(exist_ok=True)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -37,8 +44,8 @@ app = FastAPI(
     },
     contact={
         "name": "技术支持",
-        "url": "http://example.com/support",
-        "email": "support@example.com",
+        "url": "http://kunkeji.com",
+        "email": "kunkeji@qq.com",
     },
     servers=[
         {"url": "http://localhost:8112", "description": "开发环境"},
@@ -74,7 +81,6 @@ if STATIC_DIR.exists():
 async def root():
     """
     获取系统信息
-    
     返回系统的基本信息，包括：
     * 系统名称
     * 版本号
@@ -98,7 +104,6 @@ async def root():
 async def health_check():
     """
     健康检查接口
-    
     用于监控系统是否正常运行
     """
     return response_success(

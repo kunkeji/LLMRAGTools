@@ -8,5 +8,7 @@ export const API_URLS = {
     VERIFY_CODE: '/api/user/send-verification-code',
     FORGOT_PASSWORD: '/api/user/password/forgot',
     RESET_PASSWORD: '/api/user/password/reset',
+    UPDATE_PROFILE: '/api/user/profile/me',
+    UPDATE_AVATAR: '/api/user/profile/me/avatar',
   },
 } as const; 

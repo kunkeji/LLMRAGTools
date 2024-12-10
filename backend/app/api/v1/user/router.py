@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.user.endpoints import auth, password
+from app.api.v1.user.endpoints import auth, password, profile
 
 router = APIRouter()
 
@@ -15,4 +15,11 @@ router.include_router(
     password.router,
     prefix="/password",
     tags=["用户认证"]
+)
+
+# 个人信息相关路由
+router.include_router(
+    profile.router,
+    prefix="/profile",
+    tags=["用户管理"]
 ) 
