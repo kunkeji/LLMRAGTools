@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
@@ -15,6 +15,7 @@ from app.schemas.user import User as UserSchema
 from app.schemas.user import UserCreate
 from app.schemas.verification_code import VerificationCodeCreate
 from app.utils.email import send_verification_email
+from app.schemas.response import response_success, ResponseModel
 
 router = APIRouter()
 
@@ -24,7 +25,7 @@ async def send_verification_code(
     db: Session = Depends(get_db),
     email_in: VerificationCodeCreate,
     background_tasks: BackgroundTasks,
-) -> Any:
+) -> ResponseModel:
     """
     发送验证码
     """
@@ -60,14 +61,14 @@ async def send_verification_code(
         code=verification_code.code
     )
     
-    return {"message": "验证码已发送，请查收邮件"}
+    return response_success(message="验证码已发送，请查收邮件")
 
-@router.post("/register", response_model=UserSchema)
+@router.post("/register", response_model=ResponseModel[UserSchema])
 def register(
     *,
     db: Session = Depends(get_db),
     user_in: UserCreate,
-) -> Any:
+) -> ResponseModel:
     """
     用户注册
     """
@@ -101,13 +102,13 @@ def register(
     
     # 创建用户
     user = crud_user.create(db, obj_in=user_in)
-    return user
+    return response_success(data=user)
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=ResponseModel[Token])
 def login(
     db: Session = Depends(get_db),
     form_data: OAuth2PasswordRequestForm = Depends()
-) -> Any:
+) -> ResponseModel:
     """
     用户登录获取token
     """
@@ -120,21 +121,22 @@ def login(
         raise HTTPException(status_code=400, detail="用户未激活")
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    return {
+    token = {
         "access_token": jwt.create_access_token(
-            subject=user.id,
+            subject=str(user.id),
             token_type="user",
             expires_delta=access_token_expires,
             extra_data={"status": user.status}
         ),
         "token_type": "bearer",
     }
+    return response_success(data=token)
 
-@router.get("/me", response_model=UserSchema)
+@router.get("/me", response_model=ResponseModel[UserSchema])
 def read_user_me(
     current_user: User = Depends(get_current_user),
-) -> Any:
+) -> ResponseModel:
     """
     获取当前用户信息
     """
-    return current_user 
+    return response_success(data=current_user) 

@@ -11,16 +11,20 @@ from app.crud import crud_admin
 from app.models.admin import Admin
 from app.schemas.token import Token
 from app.schemas.admin import Admin as AdminSchema, AdminCreate
+from app.schemas.response import response_success
 
-router = APIRouter()
+router = APIRouter(tags=["管理认证"])
 
-@router.post("/login", response_model=Token)
+@router.post("/login", summary="管理员登录")
 def admin_login(
     db: Session = Depends(get_db),
     form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Any:
     """
-    管理员登录获取token
+    管理员登录接口
+    
+    - **username**: 管理员用户名
+    - **password**: 密码
     """
     admin = crud_admin.authenticate(
         db, username=form_data.username, password=form_data.password
@@ -31,7 +35,7 @@ def admin_login(
         raise HTTPException(status_code=400, detail="管理员账号未激活")
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    return {
+    token = {
         "access_token": jwt.create_access_token(
             subject=str(admin.id),
             token_type="admin",
@@ -40,8 +44,13 @@ def admin_login(
         ),
         "token_type": "bearer",
     }
+    
+    return response_success(
+        data=token,
+        message="登录成功"
+    )
 
-@router.post("/create", response_model=AdminSchema)
+@router.post("/create", summary="创建管理员")
 def create_admin(
     *,
     db: Session = Depends(get_db),
@@ -49,7 +58,14 @@ def create_admin(
     current_admin: Admin = Depends(get_current_super_admin)
 ) -> Any:
     """
-    创建新管理员（仅超级管理员可操作）
+    创建新管理员（需要超级管理员权限）
+    
+    - **username**: 用户名
+    - **email**: 邮箱
+    - **password**: 密码
+    - **full_name**: 全名
+    - **role**: 角色（admin/super_admin）
+    - **phone_number**: 电话号码（可选）
     """
     admin = crud_admin.get_by_email(db, email=admin_in.email)
     if admin:
@@ -66,18 +82,24 @@ def create_admin(
         )
     
     admin = crud_admin.create(db, obj_in=admin_in)
-    return admin
+    return response_success(
+        data=admin,
+        message="管理员创建成功"
+    )
 
-@router.get("/me", response_model=AdminSchema)
+@router.get("/me", summary="获取当前管理员信息")
 def read_admin_me(
     current_admin: Admin = Depends(get_current_admin),
 ) -> Any:
     """
-    获取当前管理员信息
+    获取当前登录管理员信息
     """
-    return current_admin
+    return response_success(
+        data=current_admin,
+        message="获取成功"
+    )
 
-@router.get("/list", response_model=List[AdminSchema])
+@router.get("/list", summary="管理员列表")
 def list_admins(
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_super_admin),
@@ -85,7 +107,13 @@ def list_admins(
     limit: int = 100,
 ) -> Any:
     """
-    获取管理员列表（仅超级管理员可操作）
+    获取管理员列表（需要超级管理员权限）
+    
+    - **skip**: 跳过记录数
+    - **limit**: 返回记录数（默认100）
     """
     admins = crud_admin.get_multi(db, skip=skip, limit=limit)
-    return admins 
+    return response_success(
+        data=admins,
+        message="获取成功"
+    ) 

@@ -4,15 +4,18 @@
 import React from 'react';
 
 export async function getRoutes() {
-  const routes = {"1":{"path":"/","redirect":"/home","parentId":"ant-design-pro-layout","id":"1"},"2":{"name":"首页","path":"/home","parentId":"ant-design-pro-layout","id":"2"},"3":{"name":"权限演示","path":"/access","parentId":"ant-design-pro-layout","id":"3"},"4":{"name":" CRUD 示例","path":"/table","parentId":"ant-design-pro-layout","id":"4"},"ant-design-pro-layout":{"id":"ant-design-pro-layout","path":"/","isLayout":true}} as const;
+  const routes = {"1":{"path":"/user","layout":false,"id":"1"},"2":{"path":"/user/login","parentId":"1","id":"2"},"3":{"path":"/user/register","parentId":"1","id":"3"},"4":{"path":"","parentId":"5","id":"4","originPath":"/"},"5":{"path":"/","isWrapper":true,"id":"5"},"6":{"path":"/","redirect":"/dashboard","parentId":"4","id":"6"},"7":{"path":"/dashboard","name":"仪表盘","parentId":"4","id":"7"},"8":{"path":"*","layout":false,"id":"8"}} as const;
   return {
     routes,
     routeComponents: {
 '1': React.lazy(() => import('./EmptyRoute')),
-'2': React.lazy(() => import(/* webpackChunkName: "p__Home__index" */'@/pages/Home/index.tsx')),
-'3': React.lazy(() => import(/* webpackChunkName: "p__Access__index" */'@/pages/Access/index.tsx')),
-'4': React.lazy(() => import(/* webpackChunkName: "p__Table__index" */'@/pages/Table/index.tsx')),
-'ant-design-pro-layout': React.lazy(() => import(/* webpackChunkName: "umi__plugin-layout__Layout" */'D:/wwwroot/AgentTools/web/src/.umi/plugin-layout/Layout.tsx')),
+'2': React.lazy(() => import(/* webpackChunkName: "p__user__login__index" */'@/pages/user/login/index.tsx')),
+'3': React.lazy(() => import(/* webpackChunkName: "p__user__register__index" */'@/pages/user/register/index.tsx')),
+'4': React.lazy(() => import(/* webpackChunkName: "layouts__BasicLayout" */'@/layouts/BasicLayout.tsx')),
+'5': React.lazy(() => import(/* webpackChunkName: "wrappers__auth" */'@/wrappers/auth.tsx')),
+'6': React.lazy(() => import('./EmptyRoute')),
+'7': React.lazy(() => import(/* webpackChunkName: "p__dashboard__index" */'@/pages/dashboard/index.tsx')),
+'8': React.lazy(() => import(/* webpackChunkName: "p__404" */'@/pages/404.tsx')),
 },
   };
 }

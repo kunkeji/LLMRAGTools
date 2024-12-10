@@ -33,12 +33,14 @@ class Settings(BaseSettings):
     PORT: int = 8111
 
     # SMTP配置
-    SMTP_TLS: bool = True
-    SMTP_PORT: int = 587
+    SMTP_TLS: bool = False
+    SMTP_SSL: bool = True
+    SMTP_PORT: int = 465
     SMTP_HOST: str
     SMTP_USER: str
     SMTP_PASSWORD: str
     EMAILS_FROM_EMAIL: str
+    EMAILS_FROM_NAME: str = "Agent Tools"
 
     # 日志配置
     LOG_LEVEL: str = "INFO"

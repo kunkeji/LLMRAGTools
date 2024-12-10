@@ -1,25 +1,26 @@
 {
   "private": true,
-  "author": "kunkeji <kunkeji@qq.com>",
+  "author": "",
   "scripts": {
     "dev": "max dev",
     "build": "max build",
+    "build:test": "max build",
     "format": "prettier --cache --write .",
-    "prepare": "husky",
-    "postinstall": "max setup",
+    "prepare": "husky install",
     "setup": "max setup",
     "start": "npm run dev"
   },
   "dependencies": {
+    "@ant-design/charts": "^1.4.2",
     "@ant-design/icons": "^5.0.1",
     "@ant-design/pro-components": "^2.4.4",
-    "@umijs/max": "^4.3.36",
+    "@umijs/max": "^4.0.87",
     "antd": "^5.4.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
-    "husky": "^9",
+    "husky": "^8.0.3",
     "lint-staged": "^13.2.0",
     "prettier": "^2.8.7",
     "prettier-plugin-organize-imports": "^3.2.2",

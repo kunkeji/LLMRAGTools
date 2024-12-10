@@ -8,10 +8,11 @@ from app.crud import crud_user
 from app.crud.verification_code import crud_verification_code
 from app.schemas.verification_code import VerificationCodeCreate, ResetPasswordRequest
 from app.utils.email import send_reset_password_email
+from app.schemas.response import response_success
 
 router = APIRouter()
 
-@router.post("/forgot-password")
+@router.post("/forgot", summary="发送重置密码验证码")
 async def forgot_password(
     *,
     db: Session = Depends(get_db),
@@ -20,6 +21,14 @@ async def forgot_password(
 ) -> Any:
     """
     发送重置密码验证码
+
+    - **email**: 注册邮箱
+    - **purpose**: reset_password（固定值）
+    
+    注意:
+    1. 验证码有效期为10分钟
+    2. 同一邮箱1分钟内只能发送一次
+    3. 新的验证码会使旧的验证码失效
     """
     # 检查邮箱是否存在
     user = crud_user.get_by_email(db, email=email_in.email)
@@ -56,9 +65,9 @@ async def forgot_password(
         username=user.username
     )
     
-    return {"message": "重置密码验证码已发送，请查收邮件"}
+    return response_success(message="重置密码验证码已发送，请查收邮件")
 
-@router.post("/reset-password")
+@router.post("/reset", summary="重置密码")
 def reset_password(
     *,
     db: Session = Depends(get_db),
@@ -66,6 +75,14 @@ def reset_password(
 ) -> Any:
     """
     重置密码
+
+    - **email**: 注册邮箱
+    - **code**: 验证码
+    - **new_password**: 新密码
+    
+    注意:
+    1. 验证码必须是通过 forgot-password 接口获取的
+    2. 重置成功后需要重新登录
     """
     # 验证验证码
     if not crud_verification_code.verify_code(
@@ -94,4 +111,4 @@ def reset_password(
         obj_in={"password": reset_data.new_password}
     )
     
-    return {"message": "密码重置成功"} 
+    return response_success(message="密码重置成功") 

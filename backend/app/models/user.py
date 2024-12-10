@@ -62,3 +62,21 @@ class User(BaseDBModel):
 
     def __repr__(self) -> str:
         return f"<User {self.username}>"
+
+    def to_dict(self) -> dict:
+        """
+        转换为字典
+        """
+        return {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "is_active": self.is_active,
+            "nickname": self.nickname,
+            "avatar": self.avatar,
+            "phone_number": self.phone_number,
+            "status": self.status,
+            "last_login": self.last_login.isoformat() if self.last_login else None,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat()
+        }

@@ -6,30 +6,47 @@ export default defineConfig({
   model: {},
   initialState: {},
   request: {},
-  layout: {
-    title: '@umijs/max',
-  },
+  layout: false,
   routes: [
     {
+      path: '/user',
+      layout: false,
+      routes: [
+        { path: '/user/login', component: './user/login' },
+        { path: '/user/register', component: './user/register' },
+      ],
+    },
+    {
       path: '/',
-      redirect: '/home',
+      component: '@/layouts/BasicLayout',
+      wrappers: ['@/wrappers/auth'],
+      routes: [
+        { path: '/', redirect: '/dashboard' },
+        {
+          path: '/dashboard',
+          name: '仪表盘',
+          component: './dashboard',
+        },
+      ],
     },
     {
-      name: '首页',
-      path: '/home',
-      component: './Home',
-    },
-    {
-      name: '权限演示',
-      path: '/access',
-      component: './Access',
-    },
-    {
-      name: ' CRUD 示例',
-      path: '/table',
-      component: './Table',
+      path: '*',
+      layout: false,
+      component: './404',
     },
   ],
-  npmClient: 'npm',
+  fastRefresh: true,
+  proxy: {
+    '/api': {
+      target: 'http://127.0.0.1:8112',
+      changeOrigin: true,
+    },
+  },
+  lessLoader: {
+    modifyVars: {
+      '@primary-color': '#1890ff',
+    },
+    javascriptEnabled: true,
+  },
 });
 

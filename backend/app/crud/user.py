@@ -24,15 +24,18 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         创建新用户
         """
-        db_obj = User(
-            email=obj_in.email,
-            username=obj_in.username,
-            hashed_password=get_password_hash(obj_in.password),
-            nickname=obj_in.nickname,
-            avatar=obj_in.avatar,
-            phone_number=obj_in.phone_number,
-            status=obj_in.status,
-        )
+        create_data = {
+            "email": obj_in.email,
+            "username": obj_in.username,
+            "hashed_password": get_password_hash(obj_in.password),
+            "nickname": obj_in.nickname or obj_in.username,  # 如果没有昵称，使用用户名
+            "avatar": obj_in.avatar,
+            "phone_number": obj_in.phone_number,
+            "status": obj_in.status or "active",
+            "is_active": True
+        }
+        
+        db_obj = User(**create_data)
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
