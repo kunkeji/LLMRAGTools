@@ -15,6 +15,8 @@ from app.api.v1 import api_router
 from app.schemas.response import response_success
 import pytz
 from datetime import datetime
+from app.core.middleware.logging import LoggingMiddleware
+from app.utils.logger import logger_instance
 
 
 # 设置时区
@@ -70,6 +72,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 注册日志中间件
+app.add_middleware(LoggingMiddleware, logger=logger_instance)
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
