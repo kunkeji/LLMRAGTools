@@ -76,3 +76,7 @@ admin/.lintstagedrc
 admin/.stylelintrc.js
 
 docker/mysql/
+
+
+# 测试
+tests/
