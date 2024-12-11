@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.admin.endpoints import auth, users
+from app.api.v1.admin.endpoints import auth, users, llm
 
 router = APIRouter()
 
@@ -14,4 +14,11 @@ router.include_router(
 router.include_router(
     users.router,
     tags=["管理后台"]
+)
+
+# LLM模型管理相关路由
+router.include_router(
+    llm.router,
+    prefix="/llm",  # 将LLM相关接口放在 /api/admin/llm 下
+    tags=["LLM管理"]
 ) 
