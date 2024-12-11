@@ -63,4 +63,34 @@ declare namespace API {
     details: string;
     timestamp: string;
   }
+
+  // LLM 模型类型
+  interface LLMModel {
+    id: number;
+    name: string;
+    mapping_name: string;
+    description: string;
+  }
+
+
+  // LLM 渠道类型
+  interface LLMChannel {
+    id: number;
+    user_id: number;
+    channel_name: string;
+    model_type: string;
+    model: string;
+    api_key: string;
+    proxy_url?: string;
+    created_at: string;
+    updated_at: string;
+  }
+
+  // 分页参数
+  interface PageParams {
+    skip?: number;
+    limit?: number;
+    keyword?: string;
+    model_type?: string;
+  }
 }

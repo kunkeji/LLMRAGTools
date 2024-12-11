@@ -1,5 +1,8 @@
+"""
+用户API路由配置
+"""
 from fastapi import APIRouter
-from app.api.v1.user.endpoints import auth, password, profile, llm
+from app.api.v1.user.endpoints import auth, password, profile, llm, channel
 
 router = APIRouter()
 
@@ -29,4 +32,11 @@ router.include_router(
     llm.router,
     prefix="/llm",  # 将LLM相关接口放在 /api/user/llm 下
     tags=["LLM服务"]
+)
+
+# LLM渠道管理相关路由
+router.include_router(
+    channel.router,
+    prefix="/channel",  # 将渠道管理接口放在 /api/user/channel 下
+    tags=["渠道管理"]
 ) 

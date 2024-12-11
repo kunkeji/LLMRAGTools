@@ -12,8 +12,12 @@ export const request: RequestConfig = {
   timeout: 10000,
   errorConfig: {
     errorHandler: (error: any) => {
-      if (error.response) {
-        message.error(`请求错误 ${error.response.status}: ${error.response.data.message}`);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('access_token');
+        history.push(loginPath);
+        message.error('登录已过期，请重新登录');
+      } else if (error.response) {
+        message.error(`请求错误: ${error.response.data.message || '未知错误'}`);
       } else if (error.request) {
         message.error('网络错误，请检查网络连接');
       } else {
@@ -39,7 +43,7 @@ export const request: RequestConfig = {
   responseInterceptors: [
     (response: any) => {
       const { data } = response;
-      if (data.code === '401') {
+      if (data?.code === '401') {
         localStorage.removeItem('access_token');
         history.push(loginPath);
         message.error('登录已过期，请重新登录');

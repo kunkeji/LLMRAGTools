@@ -15,9 +15,7 @@ router = APIRouter()
 
 @router.get("/models", summary="获取可用的LLM模型列表", response_model=dict)
 def get_available_models(
-    db: Session = Depends(get_db),
-    skip: int = 0,
-    limit: int = 100
+    db: Session = Depends(get_db)
 ) -> dict:
     """
     获取所有可用的LLM模型列表
@@ -28,9 +26,7 @@ def get_available_models(
     models = crud_llm_model.search_models(
         db,
         status=ModelStatus.ACTIVE,
-        is_public=True,
-        skip=skip,
-        limit=limit
+        is_public=True
     )
     
     # 将模型对象转换为字典列表
@@ -39,16 +35,9 @@ def get_available_models(
             "id": model.id,
             "name": model.name,
             "mapping_name": model.mapping_name,
-            "status": model.status,
-            "is_public": model.is_public,
-            "description": model.description,
-            "created_at": model.created_at,
-            "updated_at": model.updated_at
+            "description": model.description
         }
         for model in models
     ]
     
-    return response_success(data={
-        "total": len(models_list),
-        "items": models_list
-    }) 
+    return response_success(data=models_list) 

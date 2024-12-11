@@ -10,5 +10,8 @@ export const API_URLS = {
     RESET_PASSWORD: '/api/user/password/reset',
     UPDATE_PROFILE: '/api/user/profile/me',
     UPDATE_AVATAR: '/api/user/profile/me/avatar',
+    // LLM 相关
+    LLM_MODELS: '/api/user/llm/models',
+    CHANNELS: '/api/user/channel/',
   },
 } as const; 

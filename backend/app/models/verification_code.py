@@ -1,5 +1,5 @@
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, DateTime, Boolean
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, DateTime, Boolean, ForeignKey
 from datetime import datetime
 from app.models.base_model import BaseDBModel
 
@@ -31,6 +31,17 @@ class VerificationCode(BaseDBModel):
         default=False,
         comment="是否已使用"
     )
+
+    # 添加用户外键关联
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=True,  # 注册时可能还没有用户ID
+        index=True,
+        comment="用户ID"
+    )
+    
+    # 添加与User模型的关系
+    user = relationship("User", back_populates="verification_codes")
 
     def is_valid(self) -> bool:
         """

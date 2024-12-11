@@ -31,9 +31,33 @@ export default defineConfig({
       component: './dashboard',
     },
     {
+      path: '/llm',
+      name: 'LLM管理',
+      icon: 'api',
+      routes: [
+        {
+          path: '/llm/channel',
+          name: '渠道管理',
+          component: './llm/channel',
+        },
+        {
+          path: '/llm/channel/create',
+          name: '新建渠道',
+          component: './llm/channel/create',
+          hideInMenu: true,
+        },
+        {
+          path: '/llm/channel/edit/:id',
+          name: '编辑渠道',
+          component: './llm/channel/edit',
+          hideInMenu: true,
+        },
+      ],
+    },
+    {
       name: '个人设置',
       icon: 'setting',
-      path: 'account/settings',
+      path: '/account/settings',
       component: './account/settings',
     },
     {
@@ -47,6 +71,7 @@ export default defineConfig({
     '/api': {
       target: 'http://127.0.0.1:8112',
       changeOrigin: true,
+      pathRewrite: { '^/api': '/api' },
     },
   },
   lessLoader: {

@@ -1,11 +1,22 @@
+"""
+API路由配置
+"""
 from fastapi import APIRouter
-from app.api.v1.user.router import router as user_router
-from app.api.v1.admin.router import router as admin_router
+from app.api.v1.user import router as user_router
+from app.api.v1.admin import router as admin_router
 
 api_router = APIRouter()
 
-# 注册用户路由（不在这里设置 tags，由子路由设置）
-api_router.include_router(user_router, prefix="/user")
+# 用户相关路由
+api_router.include_router(
+    user_router.router,
+    prefix="/user",
+    tags=["用户"]
+)
 
-# 注册管理员路由（不在这里设置 tags，由子路由设置）
-api_router.include_router(admin_router, prefix="/admin")
+# 管理员相关路由
+api_router.include_router(
+    admin_router.router,
+    prefix="/admin",
+    tags=["管理员"]
+)

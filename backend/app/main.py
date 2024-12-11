@@ -41,6 +41,7 @@ app = FastAPI(
     openapi_tags=tags_metadata,
     swagger_ui_parameters=swagger_ui_parameters,
     default_response_class=JSONResponse,
+    redirect_slashes=True,
     license_info={
         "name": "MIT",
         "url": "https://opensource.org/licenses/MIT",

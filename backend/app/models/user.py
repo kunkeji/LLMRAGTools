@@ -2,6 +2,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Boolean, DateTime
 from datetime import datetime
 from app.models.base_model import BaseDBModel
+from sqlalchemy.orm import relationship
 
 class User(BaseDBModel):
     """
@@ -59,6 +60,10 @@ class User(BaseDBModel):
         nullable=True,
         comment="最后登录时间"
     )
+
+    # 关联关系
+    verification_codes = relationship("VerificationCode", back_populates="user")
+    llm_channels = relationship("LLMChannel", back_populates="user")
 
     def __repr__(self) -> str:
         return f"<User {self.username}>"
