@@ -14,4 +14,9 @@ export const API_URLS = {
     LLM_MODELS: '/api/user/llm/models',
     CHANNELS: '/api/user/channel',
   },
+  // 邮件相关
+  EMAIL: {
+    ACCOUNTS: '/api/user/email/accounts',
+    PROVIDERS: '/api/user/email/providers',
+  },
 } as const; 

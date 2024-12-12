@@ -4,7 +4,7 @@
 import React from 'react';
 
 export async function getRoutes() {
-  const routes = {"1":{"path":"/user","layout":false,"id":"1"},"2":{"path":"/user/login","parentId":"1","id":"2"},"3":{"path":"/user/register","parentId":"1","id":"3"},"4":{"path":"/user/forgot-password","parentId":"1","id":"4"},"5":{"path":"/","redirect":"/dashboard","parentId":"ant-design-pro-layout","id":"5"},"6":{"path":"/dashboard","name":"仪表盘","icon":"dashboard","parentId":"ant-design-pro-layout","id":"6"},"7":{"path":"/llm","name":"LLM管理","icon":"api","parentId":"ant-design-pro-layout","id":"7"},"8":{"path":"/llm/channel","name":"渠道管理","parentId":"7","id":"8"},"9":{"path":"/llm/channel/create","name":"新建渠道","hideInMenu":true,"parentId":"7","id":"9"},"10":{"path":"/llm/channel/edit/:id","name":"编辑渠道","hideInMenu":true,"parentId":"7","id":"10"},"11":{"name":"个人设置","icon":"setting","path":"/account/settings","parentId":"ant-design-pro-layout","id":"11"},"12":{"path":"*","layout":false,"id":"12"},"ant-design-pro-layout":{"id":"ant-design-pro-layout","path":"/","isLayout":true}} as const;
+  const routes = {"1":{"path":"/user","layout":false,"id":"1"},"2":{"path":"/user/login","parentId":"1","id":"2"},"3":{"path":"/user/register","parentId":"1","id":"3"},"4":{"path":"/user/forgot-password","parentId":"1","id":"4"},"5":{"path":"/","redirect":"/dashboard","parentId":"ant-design-pro-layout","id":"5"},"6":{"path":"/dashboard","name":"仪表盘","icon":"dashboard","parentId":"ant-design-pro-layout","id":"6"},"7":{"path":"/llm","name":"LLM管理","icon":"api","parentId":"ant-design-pro-layout","id":"7"},"8":{"path":"/llm/channel","name":"渠道管理","parentId":"7","id":"8"},"9":{"path":"/llm/channel/create","name":"新建渠道","hideInMenu":true,"parentId":"7","id":"9"},"10":{"path":"/llm/channel/edit/:id","name":"编辑渠道","hideInMenu":true,"parentId":"7","id":"10"},"11":{"path":"/email","name":"邮件功能","icon":"mail","parentId":"ant-design-pro-layout","id":"11"},"12":{"path":"/email/account","name":"账户管理","parentId":"11","id":"12"},"13":{"path":"/email/account/create","name":"新建账户","hideInMenu":true,"parentId":"11","id":"13"},"14":{"path":"/email/account/edit/:id","name":"编辑账户","hideInMenu":true,"parentId":"11","id":"14"},"15":{"name":"个人设置","icon":"setting","path":"/account/settings","parentId":"ant-design-pro-layout","id":"15"},"16":{"path":"*","layout":false,"id":"16"},"ant-design-pro-layout":{"id":"ant-design-pro-layout","path":"/","isLayout":true}} as const;
   return {
     routes,
     routeComponents: {
@@ -18,8 +18,12 @@ export async function getRoutes() {
 '8': React.lazy(() => import(/* webpackChunkName: "p__llm__channel__index" */'@/pages/llm/channel/index.tsx')),
 '9': React.lazy(() => import(/* webpackChunkName: "p__llm__channel__create" */'@/pages/llm/channel/create.tsx')),
 '10': React.lazy(() => import(/* webpackChunkName: "p__llm__channel__edit" */'@/pages/llm/channel/edit.tsx')),
-'11': React.lazy(() => import(/* webpackChunkName: "p__account__settings__index" */'@/pages/account/settings/index.tsx')),
-'12': React.lazy(() => import(/* webpackChunkName: "p__404" */'@/pages/404.tsx')),
+'11': React.lazy(() => import('./EmptyRoute')),
+'12': React.lazy(() => import(/* webpackChunkName: "p__email__account__index" */'@/pages/email/account/index.tsx')),
+'13': React.lazy(() => import(/* webpackChunkName: "p__email__account__create" */'@/pages/email/account/create.tsx')),
+'14': React.lazy(() => import(/* webpackChunkName: "p__email__account__edit" */'@/pages/email/account/edit.tsx')),
+'15': React.lazy(() => import(/* webpackChunkName: "p__account__settings__index" */'@/pages/account/settings/index.tsx')),
+'16': React.lazy(() => import(/* webpackChunkName: "p__404" */'@/pages/404.tsx')),
 'ant-design-pro-layout': React.lazy(() => import(/* webpackChunkName: "umi__plugin-layout__Layout" */'D:/wwwroot/AgentTools/web/src/.umi/plugin-layout/Layout.tsx')),
 },
   };

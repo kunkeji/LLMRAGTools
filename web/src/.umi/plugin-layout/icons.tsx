@@ -3,5 +3,6 @@
 // DO NOT CHANGE IT MANUALLY!
 import DashboardOutlined from 'D:/wwwroot/AgentTools/web/node_modules/@umijs/plugins/node_modules/@ant-design/icons/es/icons/DashboardOutlined';
 import ApiOutlined from 'D:/wwwroot/AgentTools/web/node_modules/@umijs/plugins/node_modules/@ant-design/icons/es/icons/ApiOutlined';
+import MailOutlined from 'D:/wwwroot/AgentTools/web/node_modules/@umijs/plugins/node_modules/@ant-design/icons/es/icons/MailOutlined';
 import SettingOutlined from 'D:/wwwroot/AgentTools/web/node_modules/@umijs/plugins/node_modules/@ant-design/icons/es/icons/SettingOutlined';
-export default { DashboardOutlined, ApiOutlined, SettingOutlined };
+export default { DashboardOutlined, ApiOutlined, MailOutlined, SettingOutlined };

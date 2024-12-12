@@ -55,6 +55,30 @@ export default defineConfig({
       ],
     },
     {
+      path: '/email',
+      name: '邮件功能',
+      icon: 'mail',
+      routes: [
+        {
+          path: '/email/account',
+          name: '账户管理',
+          component: './email/account',
+        },
+        {
+          path: '/email/account/create',
+          name: '新建账户',
+          component: './email/account/create',
+          hideInMenu: true,
+        },
+        {
+          path: '/email/account/edit/:id',
+          name: '编辑账户',
+          component: './email/account/edit',
+          hideInMenu: true,
+        },
+      ],
+    },
+    {
       name: '个人设置',
       icon: 'setting',
       path: '/account/settings',

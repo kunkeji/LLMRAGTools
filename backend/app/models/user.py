@@ -64,6 +64,7 @@ class User(BaseDBModel):
     # 关联关系
     verification_codes = relationship("VerificationCode", back_populates="user")
     llm_channels = relationship("LLMChannel", back_populates="user")
+    email_accounts = relationship("EmailAccount", back_populates="user")
 
     def __repr__(self) -> str:
         return f"<User {self.username}>"

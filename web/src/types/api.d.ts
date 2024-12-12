@@ -100,4 +100,54 @@ declare namespace API {
     keyword?: string;
     model_type?: string;
   }
+
+  // 邮件同步状态
+  type EmailSyncStatus = 'NEVER' | 'SYNCING' | 'SUCCESS' | 'ERROR';
+
+  // 邮件账户类型
+  interface EmailAccount {
+    id: number;
+    email_address: string;
+    auth_token: string;
+    smtp_host: string;
+    smtp_port: number;
+    imap_host: string;
+    imap_port: number;
+    use_ssl: boolean;
+    use_tls: boolean;
+    sync_status: EmailSyncStatus;
+    last_sync_time?: string;
+    smtp_last_test_time?: string;
+    smtp_test_result?: boolean;
+    smtp_test_error?: string;
+    imap_last_test_time?: string;
+    imap_test_result?: boolean;
+    imap_test_error?: string;
+    created_at: string;
+    updated_at: string;
+    user_id: number;
+    provider?: string;
+  }
+
+  // 邮件服务商类型
+  interface EmailProvider {
+    id: number;
+    name: string;
+    domain_suffix: string;
+    smtp_host: string;
+    smtp_port: number;
+    imap_host: string;
+    imap_port: number;
+    use_ssl: boolean;
+    use_tls: boolean;
+    is_active: boolean;
+    logo_url: string | null;
+    description: string;
+    help_url: string | null;
+    auth_help_url: string | null;
+    sort_order: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+  }
 }
