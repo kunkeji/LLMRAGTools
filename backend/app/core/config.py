@@ -65,6 +65,14 @@ class Settings(BaseSettings):
     TIMEZONE: str = "Asia/Shanghai"
     DEFAULT_LANGUAGE: str = "zh-cn"
 
+    # 任务调度器配置
+    TASK_SCHEDULER_MAX_WORKERS: int = 10  # 最大工作线程数
+    TASK_SCHEDULER_POLL_INTERVAL: int = 5  # 轮询间隔（秒）
+    TASK_SCHEDULER_BATCH_SIZE: int = 20  # 每批获取任务数
+    TASK_SCHEDULER_MAX_RETRIES: int = 3  # 最大重试次数
+    TASK_SCHEDULER_TASK_TIMEOUT: int = 3600  # 任务超时时间（秒）
+    TASK_SCHEDULER_RETRY_DELAY: int = 300  # 重试延迟（秒）
+
     class Config:
         case_sensitive = True
         env_file = ".env"

@@ -9,16 +9,51 @@ from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 from app.models.task import Task, TaskStatus, TaskPriority
 from app.core.tasks.registry import task_registry
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+class TaskSchedulerConfig:
+    """任务调度器配置"""
+    
+    def __init__(
+        self,
+        max_workers: int = settings.TASK_SCHEDULER_MAX_WORKERS,
+        poll_interval: int = settings.TASK_SCHEDULER_POLL_INTERVAL,
+        batch_size: int = settings.TASK_SCHEDULER_BATCH_SIZE,
+        max_retries: int = settings.TASK_SCHEDULER_MAX_RETRIES,
+        task_timeout: int = settings.TASK_SCHEDULER_TASK_TIMEOUT,
+        retry_delay: int = settings.TASK_SCHEDULER_RETRY_DELAY
+    ):
+        self.max_workers = max_workers  # 最大工作线程数
+        self.poll_interval = poll_interval  # 轮询间隔（秒）
+        self.batch_size = batch_size  # 每批获取任务数
+        self.max_retries = max_retries  # 最大重试次数
+        self.task_timeout = task_timeout  # 任务超时时间（秒）
+        self.retry_delay = retry_delay  # 重试延迟（秒）
+
+class TaskSchedulerStats:
+    """任务调度器统计信息"""
+    
+    def __init__(self):
+        self.total_tasks = 0  # 总任务数
+        self.completed_tasks = 0  # 已完成任务数
+        self.failed_tasks = 0  # 失败任务数
+        self.active_threads = 0  # 活动线程数
+        self.queue_size = 0  # 队列大小
+        self.avg_execution_time = 0  # 平均执行时间
+        self.last_poll_time = None  # 最后轮询时间
+        self.last_task_time = None  # 最后任务执行时间
 
 class TaskScheduler:
     """任务调度器"""
     
-    def __init__(self, max_workers: int = 4):
-        self.pool = ThreadPoolExecutor(max_workers=max_workers)
+    def __init__(self, config: TaskSchedulerConfig = None):
+        self.config = config or TaskSchedulerConfig()
+        self.pool = ThreadPoolExecutor(max_workers=self.config.max_workers)
         self.running = False
         self._thread = None
+        self.stats = TaskSchedulerStats()
         
         # 检查已注册的任务
         tasks = task_registry.list_tasks()
@@ -56,7 +91,13 @@ class TaskScheduler:
         self.pool.shutdown(wait=True)
         logger.info("任务调度器已停止")
     
-    def _get_pending_tasks(self, db: Session, limit: int = 10):
+    def update_stats(self):
+        """更新统计信息"""
+        self.stats.active_threads = len(self.pool._threads)
+        self.stats.queue_size = self.pool._work_queue.qsize()
+        self.stats.last_poll_time = datetime.now()
+    
+    def _get_pending_tasks(self, db: Session) -> list[Task]:
         """获取待执行的任务"""
         return (
             db.query(Task)
@@ -66,7 +107,7 @@ class TaskScheduler:
                 Task.deleted_at.is_(None)
             )
             .order_by(Task.priority.desc(), Task.scheduled_at.asc())
-            .limit(limit)
+            .limit(self.config.batch_size)
             .all()
         )
     
@@ -93,18 +134,19 @@ class TaskScheduler:
                     status=TaskStatus.PENDING,
                     priority=task.priority,
                     scheduled_at=next_run,
-                    max_retries=task.max_retries,
-                    timeout=task.timeout
+                    max_retries=self.config.max_retries,
+                    timeout=self.config.task_timeout
                 )
                 db.add(new_task)
                 db.commit()
                 logger.info(f"任务 {task.id} 已重新调度，下次执行时间: {next_run}")
         except Exception as e:
             logger.exception(f"重新调度任务 {task.id} 时发生错误")
-
+    
     async def _execute_task_async(self, task_id: int):
         """异步执行任务"""
         logger.info(f"开始异步执行任务 {task_id}, 线程ID: {current_thread().ident}")
+        start_time = time.time()
         
         with SessionLocal() as db:
             task = db.query(Task).get(task_id)
@@ -130,7 +172,6 @@ class TaskScheduler:
                           f"方法类型: {type(method)}")
                 
                 # 执行任务
-                start_time = time.time()
                 try:
                     if is_async:
                         logger.info(f"开始执行异步任务 {task_id}")
@@ -143,7 +184,7 @@ class TaskScheduler:
                 except Exception as e:
                     logger.exception(f"执行任务 {task_id} 的方法时发生错误")
                     raise
-                
+
                 execution_time = time.time() - start_time
                 
                 # 更新任务状态为完成
@@ -155,6 +196,14 @@ class TaskScheduler:
                 }
                 db.commit()
                 
+                # 更新统计信息
+                self.stats.completed_tasks += 1
+                self.stats.avg_execution_time = (
+                    (self.stats.avg_execution_time * (self.stats.completed_tasks - 1) + execution_time)
+                    / self.stats.completed_tasks
+                )
+                self.stats.last_task_time = datetime.now()
+                
                 # 重新调度任务（如果需要）
                 self._reschedule_task(db, task)
                 
@@ -165,15 +214,17 @@ class TaskScheduler:
                 
                 # 处理任务失败
                 task.retry_count += 1
-                if task.retry_count >= task.max_retries:
+                if task.retry_count >= self.config.max_retries:
                     task.status = TaskStatus.FAILED
+                    self.stats.failed_tasks += 1
                 else:
                     task.status = TaskStatus.PENDING
-                    # 可以在这里添加重试延迟逻辑
+                    # 添加重试延迟
+                    task.scheduled_at = datetime.now() + timedelta(seconds=self.config.retry_delay)
                 
                 task.error = str(e)
                 db.commit()
-
+    
     def _execute_task(self, task_id: int):
         """执行任务的包装方法"""
         logger.info(f"开始执行任务 {task_id}, 线程ID: {current_thread().ident}")
@@ -192,7 +243,7 @@ class TaskScheduler:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             
-            # 运��异步任务
+            # 运行异步任务
             logger.info(f"开始运行任务 {task_id} 的事件循环")
             loop.run_until_complete(run_task())
             logger.info(f"任务 {task_id} 的事件循环运行完成")
@@ -217,12 +268,16 @@ class TaskScheduler:
                         for task in tasks:
                             logger.info(f"提交任务到线程池: {task.id} - {task.name}")
                             self.pool.submit(self._execute_task, task.id)
+                            self.stats.total_tasks += 1
+                    
+                    # 更新统计信息
+                    self.update_stats()
                     
                     # 无任务时休眠
-                    time.sleep(5)
+                    time.sleep(self.config.poll_interval)
             except Exception as e:
                 logger.exception(f"调度器错误: {e}")
-                time.sleep(5)
+                time.sleep(self.config.poll_interval)
 
 # 全局调度器实例
 scheduler = TaskScheduler() 
