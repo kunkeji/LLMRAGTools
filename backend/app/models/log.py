@@ -26,7 +26,7 @@ class Log(Base):
     __tablename__ = "logs"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    timestamp = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
+    timestamp = Column(DateTime, nullable=False, default=datetime.now, index=True)
     level = Column(SQLEnum(LogLevel), nullable=False, index=True)
     type = Column(SQLEnum(LogType), nullable=False, index=True)
     

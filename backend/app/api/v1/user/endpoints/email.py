@@ -182,12 +182,6 @@ def trigger_email_sync(
     current_user: User = Depends(get_current_active_user),
     account_id: int
 ) -> Any:
-    """
-    触发指定邮件账户的同步任务
-    
-    Args:
-        account_id: 邮件账户ID
-    """
     # 检查账户是否存在且属于当前用户
     account = crud_email_account.get(db, id=account_id)
     if not account:
