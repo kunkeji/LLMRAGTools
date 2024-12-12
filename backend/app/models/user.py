@@ -1,8 +1,10 @@
-from sqlalchemy.orm import Mapped, mapped_column
+"""
+用户模型
+"""
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Boolean, DateTime
 from datetime import datetime
 from app.models.base_model import BaseDBModel
-from sqlalchemy.orm import relationship
 
 class User(BaseDBModel):
     """
@@ -62,9 +64,24 @@ class User(BaseDBModel):
     )
 
     # 关联关系
-    verification_codes = relationship("VerificationCode", back_populates="user")
-    llm_channels = relationship("LLMChannel", back_populates="user")
-    email_accounts = relationship("EmailAccount", back_populates="user")
+    verification_codes = relationship(
+        "VerificationCode",
+        back_populates="user",
+        lazy="select",
+        cascade="all, delete-orphan"
+    )
+    llm_channels = relationship(
+        "LLMChannel",
+        back_populates="user",
+        lazy="select",
+        cascade="all, delete-orphan"
+    )
+    email_accounts = relationship(
+        "EmailAccount",
+        back_populates="user",
+        lazy="select",
+        cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<User {self.username}>"

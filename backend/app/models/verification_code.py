@@ -1,3 +1,6 @@
+"""
+验证码模型
+"""
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, DateTime, Boolean, ForeignKey
 from datetime import datetime
@@ -41,7 +44,11 @@ class VerificationCode(BaseDBModel):
     )
     
     # 添加与User模型的关系
-    user = relationship("User", back_populates="verification_codes")
+    user = relationship(
+        "User",
+        back_populates="verification_codes",
+        lazy="select"
+    )
 
     def is_valid(self) -> bool:
         """
