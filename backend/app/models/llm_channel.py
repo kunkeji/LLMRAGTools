@@ -89,7 +89,7 @@ class LLMChannel(BaseDBModel):
             response_time: 新的响应时间(毫秒)
         """
         self.last_response_time = response_time
-        self.last_test_time = datetime.utcnow()
+        self.last_test_time = datetime.now()
         self.test_count += 1
         
         # 更新最大最小值

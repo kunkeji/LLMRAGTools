@@ -118,7 +118,7 @@ async def save_avatar(file: UploadFile, user_id: int) -> AvatarUploadResponse:
             width=width,
             height=height,
             user_id=user_id,
-            created_at=datetime.utcnow()
+            created_at=datetime.now()
         )
     
     except HTTPException:

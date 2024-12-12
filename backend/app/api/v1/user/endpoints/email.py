@@ -1,13 +1,10 @@
-"""
-用户邮箱账户管理接口
-"""
-from typing import List
+from typing import List, Any
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.v1.deps.auth import get_current_user
+from app.api.v1.deps.auth import get_current_user, get_current_active_user, get_db
 from app.models.user import User
-from app.schemas.response import ResponseModel
+from app.schemas.response import ResponseModel, response_success
 from app.schemas.email_account import (
     EmailAccountResponse,
     EmailAccountCreate,
@@ -18,6 +15,7 @@ from app.schemas.email_provider import EmailProvider
 from app.crud.email_account import crud_email_account
 from app.crud.email_provider import crud_email_provider
 from app.db.session import get_db
+from app.core.tasks.email_sync import create_sync_task
 
 router = APIRouter()
 
@@ -29,7 +27,6 @@ def get_email_accounts(
     skip: int = 0,
     limit: int = 100
 ):
-    """获取用户的邮箱账户列表"""
     accounts = crud_email_account.get_multi_by_user(
         db,
         user_id=current_user.id,
@@ -45,7 +42,6 @@ def create_email_account(
     current_user: User = Depends(get_current_user),
     account_in: EmailAccountCreate
 ):
-    """创建邮箱账户"""
     # 检查邮箱地址是否已存在
     if crud_email_account.get_by_email(db, user_id=current_user.id, email=account_in.email_address):
         raise HTTPException(
@@ -179,27 +175,40 @@ async def test_email_account(
     
     return ResponseModel(message="Connection test successful")
 
-@router.post("/accounts/{account_id}/sync", response_model=ResponseModel)
-def sync_email_account(
+@router.post("/accounts/{account_id}/sync", summary="触发邮件同步")
+def trigger_email_sync(
     *,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_active_user),
     account_id: int
-):
-    """手动同步邮箱账户"""
+) -> Any:
+    """
+    触发指定邮件账户的同步任务
+    
+    Args:
+        account_id: 邮件账户ID
+    """
+    # 检查账户是否存在且属于当前用户
     account = crud_email_account.get(db, id=account_id)
-    if not account or account.user_id != current_user.id:
+    if not account:
         raise HTTPException(
             status_code=404,
-            detail="Email account not found"
+            detail="邮件账户不存在"
         )
-    
-    # TODO: 实现邮箱同步逻辑
-    success = crud_email_account.sync_emails(db, account)
-    if not success:
+    if account.user_id != current_user.id:
         raise HTTPException(
-            status_code=400,
-            detail="Failed to sync emails"
+            status_code=403,
+            detail="无权访问此邮件账户"
         )
     
-    return ResponseModel() 
+    # 创建同步任务
+    task = create_sync_task(account_id)
+    
+    return response_success(
+        data={
+            "task_id": task.id,
+            "status": task.status,
+            "scheduled_at": task.scheduled_at.isoformat()
+        },
+        message="同步任务已创建"
+    ) 

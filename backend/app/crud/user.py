@@ -79,7 +79,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         if not verify_password(password, user.hashed_password):
             return None
         # 更新最后登录时间
-        user.last_login = datetime.utcnow()
+        user.last_login = datetime.now()
         db.add(user)
         db.commit()
         db.refresh(user)
@@ -95,7 +95,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             if user.avatar:
                 delete_avatar(user.avatar)
             
-            user.deleted_at = datetime.utcnow()
+            user.deleted_at = datetime.now()
             user.is_active = False
             db.add(user)
             db.commit()

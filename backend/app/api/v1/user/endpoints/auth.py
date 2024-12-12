@@ -57,7 +57,7 @@ async def send_verification_code(
         )
         
         # 如果存在未过期的验证码且发送时间小于1分钟，则不允许重新发送
-        if latest_code and (datetime.utcnow() - latest_code.created_at).total_seconds() < 60:
+        if latest_code and (datetime.now() - latest_code.created_at).total_seconds() < 60:
             logger_instance.warning(
                 message=f"验证码请求过于频繁: {email_in.email}",
                 module="auth",

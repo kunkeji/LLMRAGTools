@@ -60,7 +60,7 @@ class CRUDAdmin(CRUDBase[Admin, AdminCreate, AdminUpdate]):
         if not verify_password(password, admin.hashed_password):
             return None
         # 更新最后登录时间
-        admin.last_login = datetime.utcnow()
+        admin.last_login = datetime.now()
         db.add(admin)
         db.commit()
         db.refresh(admin)

@@ -37,7 +37,7 @@ class BaseDBModel(Base):
         """
         软删除
         """
-        self.deleted_at = datetime.utcnow()
+        self.deleted_at = datetime.now()
 
     @property
     def is_deleted(self) -> bool:

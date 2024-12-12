@@ -62,7 +62,7 @@ class TaskScheduler:
             db.query(Task)
             .filter(
                 Task.status == TaskStatus.PENDING,
-                Task.scheduled_at <= datetime.utcnow(),
+                Task.scheduled_at <= datetime.now(),
                 Task.deleted_at.is_(None)
             )
             .order_by(Task.priority.desc(), Task.scheduled_at.asc())
@@ -85,7 +85,7 @@ class TaskScheduler:
             
             if interval_minutes:
                 # 如果任务有间隔时间，创建下一次执行的任务
-                next_run = datetime.utcnow() + timedelta(minutes=interval_minutes)
+                next_run = datetime.now() + timedelta(minutes=interval_minutes)
                 new_task = Task(
                     name=task.name,
                     func_name=task.func_name,
@@ -115,7 +115,7 @@ class TaskScheduler:
             try:
                 # 更新任务状态为执行中
                 task.status = TaskStatus.RUNNING
-                task.started_at = datetime.utcnow()
+                task.started_at = datetime.now()
                 db.commit()
                 
                 # 获取任务方法
@@ -148,7 +148,7 @@ class TaskScheduler:
                 
                 # 更新任务状态为完成
                 task.status = TaskStatus.COMPLETED
-                task.completed_at = datetime.utcnow()
+                task.completed_at = datetime.now()
                 task.result = {
                     "result": result if isinstance(result, (dict, list)) else str(result),
                     "execution_time": execution_time

@@ -2,7 +2,7 @@
 日志CRUD操作
 """
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime,timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from app.crud.base import CRUDBase
@@ -93,7 +93,7 @@ class CRUDLog(CRUDBase[Log, LogCreate, LogCreate]):
         days: int = 30
     ) -> int:
         """清理指定天数之前的日志"""
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now() - timedelta(days=days)
         result = db.query(self.model).filter(
             self.model.timestamp < cutoff_date
         ).delete()

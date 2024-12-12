@@ -117,7 +117,7 @@ class CRUDEmailAccount(CRUDBase[EmailAccount, EmailAccountCreate, EmailAccountUp
             "sync_error": error
         }
         
-        if status == SyncStatus.SUCCESS:
+        if status == SyncStatus.COMPLETED:
             # 计算下次同步时间
             update_data["next_sync_time"] = datetime.now().timestamp() + (db_obj.sync_interval * 60)
             update_data["sync_error"] = None
@@ -177,7 +177,7 @@ class CRUDEmailAccount(CRUDBase[EmailAccount, EmailAccountCreate, EmailAccountUp
         )
         
         # 更新SMTP测试结果
-        account.smtp_last_test_time = datetime.utcnow()
+        account.smtp_last_test_time = datetime.now()
         account.smtp_test_result = smtp_success
         account.smtp_test_error = smtp_error if not smtp_success else None
         
@@ -191,7 +191,7 @@ class CRUDEmailAccount(CRUDBase[EmailAccount, EmailAccountCreate, EmailAccountUp
         )
         
         # 更新IMAP测试结果
-        account.imap_last_test_time = datetime.utcnow()
+        account.imap_last_test_time = datetime.now()
         account.imap_test_result = imap_success
         account.imap_test_error = imap_error if not imap_success else None
         
@@ -216,7 +216,7 @@ class CRUDEmailAccount(CRUDBase[EmailAccount, EmailAccountCreate, EmailAccountUp
             self.update_sync_status(
                 db,
                 db_obj=db_obj,
-                status=SyncStatus.SYNCING
+                status=SyncStatus.PENDING
             )
             
             # 实现邮件同步逻辑
@@ -225,7 +225,7 @@ class CRUDEmailAccount(CRUDBase[EmailAccount, EmailAccountCreate, EmailAccountUp
             self.update_sync_status(
                 db,
                 db_obj=db_obj,
-                status=SyncStatus.SUCCESS
+                status=SyncStatus.COMPLETED
             )
             return True
         except Exception as e:

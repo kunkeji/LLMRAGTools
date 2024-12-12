@@ -65,4 +65,11 @@ export const emailApi = {
       method: 'POST',
     });
   },
+
+  // 同步邮件账户
+  syncAccount: (id: number) => {
+    return apiRequest<void>(`${API_URLS.EMAIL.ACCOUNTS}/${id}/sync`, {
+      method: 'POST',
+    });
+  },
 }; 

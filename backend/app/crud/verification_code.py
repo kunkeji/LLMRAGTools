@@ -35,7 +35,7 @@ class CRUDVerificationCode(CRUDBase[VerificationCode, VerificationCodeCreate, Ve
             email=email,
             code=self.generate_code(),
             purpose=purpose,
-            expires_at=datetime.utcnow() + timedelta(minutes=expires_in_minutes)
+            expires_at=datetime.now() + timedelta(minutes=expires_in_minutes)
         )
         db.add(db_obj)
         db.commit()
@@ -59,7 +59,7 @@ class CRUDVerificationCode(CRUDBase[VerificationCode, VerificationCodeCreate, Ve
                 VerificationCode.code == code,
                 VerificationCode.purpose == purpose,
                 VerificationCode.is_used == False,
-                VerificationCode.expires_at > datetime.utcnow()
+                VerificationCode.expires_at > datetime.now()
             )
         ).first()
 
@@ -104,7 +104,7 @@ class CRUDVerificationCode(CRUDBase[VerificationCode, VerificationCodeCreate, Ve
                 VerificationCode.email == email,
                 VerificationCode.purpose == purpose,
                 VerificationCode.is_used == False,
-                VerificationCode.expires_at > datetime.utcnow()
+                VerificationCode.expires_at > datetime.now()
             )
         ).order_by(VerificationCode.created_at.desc()).first()
 

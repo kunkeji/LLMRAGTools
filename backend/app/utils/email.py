@@ -227,8 +227,8 @@ async def test_email_server(
     return {
         "smtp_test_result": smtp_success,
         "smtp_test_error": smtp_error,
-        "smtp_last_test_time": datetime.utcnow(),
+        "smtp_last_test_time": datetime.now(),
         "imap_test_result": imap_success,
         "imap_test_error": imap_error,
-        "imap_last_test_time": datetime.utcnow()
+        "imap_last_test_time": datetime.now()
     }

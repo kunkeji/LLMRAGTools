@@ -11,15 +11,19 @@ const { confirm } = Modal;
 // 同步状态配置
 const syncStatusConfig = {
   NEVER: { color: 'default', text: '未同步' },
-  SYNCING: { color: 'processing', text: '同步中' },
-  SUCCESS: { color: 'success', text: '已同步' },
-  ERROR: { color: 'error', text: '同步失败' },
+  PENDING: { color: 'default', text: '排队中' },
+  RUNNING: { color: 'processing', text: '同步中' },
+  COMPLETED: { color: 'success', text: '已同步' },
+  FAILED: { color: 'error', text: '同步失败' },
+  CANCELLED: { color: 'error', text: '已取消' },
+  TIMEOUT: { color: 'error', text: '同步超时' },
 };
 
 const EmailAccountList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [accounts, setAccounts] = useState<API.EmailAccount[]>([]);
   const [testingId, setTestingId] = useState<number>();
+  const [syncingId, setSyncingId] = useState<number>();
 
   // 加载账户列表
   const loadAccounts = async () => {
@@ -70,6 +74,20 @@ const EmailAccountList: React.FC = () => {
       message.error(error.message || '测试失败');
     } finally {
       setTestingId(undefined);
+    }
+  };
+
+  // 同步邮件账户
+  const handleSync = async (id: number) => {
+    try {
+      setSyncingId(id);
+      await emailApi.syncAccount(id);
+      message.success('同步已开始，请稍后刷新查看结果');
+      loadAccounts();
+    } catch (error: any) {
+      message.error(error.message || '同步失败');
+    } finally {
+      setSyncingId(undefined);
     }
   };
 
@@ -145,6 +163,16 @@ const EmailAccountList: React.FC = () => {
       width: '10%',
       render: (_, record) => (
         <Space direction="vertical" size="small">
+          <Button
+            type="link"
+            size="small"
+            onClick={() => handleSync(record.id)}
+            loading={syncingId === record.id}
+            disabled={record.sync_status === 'RUNNING'}
+            icon={<SyncOutlined spin={record.sync_status === 'RUNNING'} />}
+          >
+            {record.sync_status === 'RUNNING' ? '同步中' : '同步'}
+          </Button>
           <Button
             type="link"
             size="small"

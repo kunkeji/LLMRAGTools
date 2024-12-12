@@ -89,7 +89,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         obj = db.get(self.model, id)
         if obj:
-            obj.deleted_at = datetime.utcnow()
+            obj.deleted_at = datetime.now()
             db.add(obj)
             db.commit()
             db.refresh(obj)

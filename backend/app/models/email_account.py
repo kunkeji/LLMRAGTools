@@ -10,10 +10,12 @@ from app.models.base_model import BaseDBModel
 class SyncStatus(str, Enum):
     """同步状态"""
     NEVER = "NEVER"         # 从未同步
-    SYNCING = "SYNCING"     # 同步中
-    SUCCESS = "SUCCESS"     # 同步成功
+    PENDING = "PENDING"     # 排队中
+    RUNNING = "RUNNING"     # 同步中
+    COMPLETED = "COMPLETED"   # 同步完成
     FAILED = "FAILED"       # 同步失败
-    ERROR = "ERROR"         # 同步错误
+    CANCELLED = "CANCELLED" # 已取消
+    TIMEOUT = "TIMEOUT"     # 同步超时
 
 class EmailAccount(BaseDBModel):
     """用户邮箱账户信息"""

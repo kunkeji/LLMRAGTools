@@ -172,7 +172,7 @@ async def your_task():
 task = Task(
     name="Task Name",
     func_name="task_name",
-    scheduled_at=datetime.utcnow() + timedelta(minutes=5)
+    scheduled_at=datetime.now() + timedelta(minutes=5)
 )
 ```
 

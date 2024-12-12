@@ -54,4 +54,4 @@ class VerificationCode(BaseDBModel):
         """
         验证码是否有效
         """
-        return not self.is_used and datetime.utcnow() <= self.expires_at 
+        return not self.is_used and datetime.now() <= self.expires_at 

@@ -22,7 +22,7 @@ class EmailAccountBase(BaseSchema):
     imap_host: str = Field(..., min_length=1, max_length=200, description="IMAP服务器地址")
     imap_port: int = Field(..., gt=0, lt=65536, description="IMAP端口号")
     use_ssl: bool = Field(default=True, description="是否使用SSL")
-    use_tls: bool = Field(default=False, description="是���使用TLS")
+    use_tls: bool = Field(default=False, description="是否使用TLS")
 
     # 服务器测试
     smtp_last_test_time: Optional[datetime] = Field(None, description="SMTP最后测试时间")
