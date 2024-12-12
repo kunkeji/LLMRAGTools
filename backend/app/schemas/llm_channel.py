@@ -2,6 +2,7 @@
 LLM渠道管理的Schema
 """
 from typing import Optional
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 class LLMChannelBase(BaseModel):
@@ -24,10 +25,25 @@ class LLMChannelUpdate(BaseModel):
     api_key: Optional[str] = Field(None, description="API密钥", max_length=500)
     proxy_url: Optional[str] = Field(None, description="代理地址", max_length=200)
 
+class LLMChannelPerformance(BaseModel):
+    """渠道性能统计Schema"""
+    last_response_time: Optional[float] = Field(None, description="最近一次响应时间(毫秒)")
+    avg_response_time: Optional[float] = Field(None, description="平均响应时间(毫秒)")
+    min_response_time: Optional[float] = Field(None, description="最小响应时间(毫秒)")
+    max_response_time: Optional[float] = Field(None, description="最大响应时间(毫秒)")
+    test_count: int = Field(0, description="测试次数")
+    last_test_time: Optional[datetime] = Field(None, description="最近测试时间")
+
 class LLMChannel(LLMChannelBase):
     """返回给前端的LLM渠道Schema"""
     id: int
     user_id: int
+    last_response_time: Optional[float] = None
+    avg_response_time: Optional[float] = None
+    min_response_time: Optional[float] = None
+    max_response_time: Optional[float] = None
+    test_count: int = 0
+    last_test_time: Optional[datetime] = None
 
     class Config:
         from_attributes = True 

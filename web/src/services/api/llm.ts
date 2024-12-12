@@ -56,4 +56,11 @@ export const llmApi = {
       method: 'DELETE',
     });
   },
+
+  // 测试渠道
+  testChannel: (id: number) => {
+    return apiRequest<void>(`${API_URLS.USER.CHANNELS}/${id}/test`, {
+      method: 'POST',
+    });
+  },
 }; 

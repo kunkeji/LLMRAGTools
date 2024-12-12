@@ -84,6 +84,13 @@ declare namespace API {
     proxy_url?: string;
     created_at: string;
     updated_at: string;
+    deleted_at?: string;
+    avg_response_time?: number;
+    min_response_time?: number;
+    max_response_time?: number;
+    last_response_time?: number;
+    last_test_time?: string;
+    test_count?: number;
   }
 
   // 分页参数

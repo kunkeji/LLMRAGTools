@@ -12,6 +12,6 @@ export const API_URLS = {
     UPDATE_AVATAR: '/api/user/profile/me/avatar',
     // LLM 相关
     LLM_MODELS: '/api/user/llm/models',
-    CHANNELS: '/api/user/channel/',
+    CHANNELS: '/api/user/channel',
   },
 } as const; 
