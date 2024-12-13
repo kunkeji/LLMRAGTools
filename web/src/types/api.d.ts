@@ -150,4 +150,37 @@ declare namespace API {
     updated_at: string;
     deleted_at: string | null;
   }
+
+  // 文档类型
+  interface Document {
+    id: number;
+    title: string;
+    content: string;
+    doc_type?: string;
+    parent_id?: number;
+    path: string;
+    order: number;
+    creator_id: number;
+    editor_id?: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at?: string;
+  }
+
+  // 文档树节点
+  interface DocumentTreeNode {
+    id: number;
+    title: string;
+    doc_type?: string;
+    level: number;
+    sort_order: number;
+    has_children: boolean;
+    children: DocumentTreeNode[];
+  }
+
+  // 文档树
+  interface DocumentTree {
+    nodes: DocumentTreeNode[];
+    total: number;
+  }
 }

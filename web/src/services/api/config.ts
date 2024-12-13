@@ -13,6 +13,8 @@ export const API_URLS = {
     // LLM 相关
     LLM_MODELS: '/api/user/llm/models',
     CHANNELS: '/api/user/channel',
+    // 文档相关
+    DOCUMENTS: '/api/user/documents',
   },
   // 邮件相关
   EMAIL: {

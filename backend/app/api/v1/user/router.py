@@ -2,7 +2,7 @@
 用户API路由配置
 """
 from fastapi import APIRouter
-from app.api.v1.user.endpoints import auth, password, profile, llm, channel, email
+from app.api.v1.user.endpoints import auth, password, profile, llm, channel, email, document
 
 router = APIRouter()
 
@@ -46,4 +46,11 @@ router.include_router(
     email.router,
     prefix="/email",
     tags=["admin-email"]
+)
+
+# 文档管理路由
+router.include_router(
+    document.router,
+    prefix="/documents",
+    tags=["文档管理"]
 ) 

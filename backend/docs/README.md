@@ -9,12 +9,16 @@
 ```
 docs/
 ├── README.md              # 本文档
-└── api/                   # API文档目录
+├── sql/                  # SQL文件目录
+│   └── documents.sql     # 文档表SQL
+└── api/                  # API文档目录
     ├── auth.md           # 认证相关接口
     ├── user.md           # 用户管理接口
     ├── profile.md        # 个人信息接口
     ├── channel.md        # LLM渠道管理接口
-    └── llm.md            # LLM服务接口
+    ├── llm.md            # LLM服务接口
+    ├── email.md          # 邮箱管理接口
+    └── document.md       # 文档管理接口
 ```
 
 ## 通用说明
@@ -100,4 +104,65 @@ token可以通过登录接口获取。
 4. LLM服务
    - 获取可用模型
    - 发送对话请求
-   - 流式对话 
+   - 流式对话
+
+5. 邮箱管理
+   - 添加邮箱账号
+   - 同步邮件
+   - 管理邮箱设置
+
+6. 文档管理
+   - 创建文档
+   - 获取文档树
+   - 更新文档
+   - 移动文档
+   - 删除文档
+   - 搜索文档
+
+## 数据库表
+
+系统包含以下主要数据表：
+
+1. users - 用户表
+2. admins - 管理员表
+3. verification_codes - 验证码表
+4. llm_models - LLM模型表
+5. llm_channels - LLM渠道表
+6. email_providers - 邮箱提供商表
+7. email_accounts - 邮箱账号表
+8. documents - 文档表
+9. tasks - 任务表
+
+详细的表结构请参考 `sql/` 目录下的SQL文件。
+
+## 开发指南
+
+### 环境要求
+
+- Python 3.8+
+- PostgreSQL 12+
+- Redis 6+
+
+### 安装依赖
+
+```bash
+pip install -r requirements.txt
+```
+
+### 配置文件
+
+复制 `.env.example` 到 `.env` 并修改相关配置：
+
+```bash
+cp .env.example .env
+```
+
+### 运行服务
+
+```bash
+# 开发环境
+python run.py
+
+# 生产环境
+python run.py --prod
+```

@@ -55,6 +55,36 @@ export default defineConfig({
       ],
     },
     {
+      path: '/document',
+      name: '知识库',
+      icon: 'book',
+      routes: [
+        {
+          path: '/document',
+          name: '文档管理',
+          component: './document',
+        },
+        {
+          path: '/document/create',
+          name: '新建文档',
+          component: './document/create',
+          hideInMenu: true,
+        },
+        {
+          path: '/document/edit/:id',
+          name: '编辑文档',
+          component: './document/edit',
+          hideInMenu: true,
+        },
+        {
+          path: '/document/preview/:id',
+          name: '预览文档',
+          component: './document/preview',
+          hideInMenu: true,
+        },
+      ],
+    },
+    {
       path: '/email',
       name: '邮件功能',
       icon: 'mail',

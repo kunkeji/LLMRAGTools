@@ -1,0 +1,136 @@
+@import '@/styles/variables.less';
+
+.container {
+  padding: 24px;
+//   max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+  
+  :global {
+    .ant-card {
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+      border-radius: 8px;
+      border: none;
+    }
+  }
+}
+
+.document {
+  .documentHeader {
+    position: relative;
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid @border-color-split;
+    text-align: center;
+
+    .backButton {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      
+      &:hover {
+        color: @primary-color;
+      }
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 500;
+      color: @heading-color;
+      margin: 0;
+    }
+  }
+
+  .documentContent {
+    font-size: 16px;
+    line-height: 1.8;
+    color: @text-color;
+
+    .content {
+      h1, h2, h3, h4, h5, h6 {
+        margin-top: 32px;
+        margin-bottom: 16px;
+        font-weight: 500;
+        color: @heading-color;
+      }
+
+      h1 { font-size: 28px; }
+      h2 { font-size: 24px; }
+      h3 { font-size: 20px; }
+      h4 { font-size: 18px; }
+      h5 { font-size: 16px; }
+      h6 { font-size: 15px; }
+
+      p {
+        margin-bottom: 16px;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+      }
+
+      code {
+        background-color: #f6f6f6;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: Consolas, Monaco, 'Andale Mono', monospace;
+        font-size: 14px;
+      }
+
+      pre {
+        background-color: #f6f6f6;
+        padding: 16px;
+        border-radius: 6px;
+        margin: 16px 0;
+        overflow-x: auto;
+
+        code {
+          background: none;
+          padding: 0;
+        }
+      }
+
+      blockquote {
+        border-left: 4px solid @primary-color;
+        padding-left: 16px;
+        color: @text-color-secondary;
+        margin: 16px 0;
+        font-style: italic;
+      }
+
+      ul, ol {
+        margin: 16px 0;
+        padding-left: 24px;
+
+        li {
+          margin-bottom: 8px;
+        }
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+
+        th, td {
+          border: 1px solid @border-color-split;
+          padding: 12px;
+          text-align: left;
+        }
+
+        th {
+          background-color: #fafafa;
+          font-weight: 500;
+        }
+
+        tr:hover {
+          background-color: #fafafa;
+        }
+      }
+    }
+  }
+} 

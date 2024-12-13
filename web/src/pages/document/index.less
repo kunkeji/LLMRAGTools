@@ -1,0 +1,311 @@
+@import '@/styles/variables.less';
+
+.container {
+  display: flex;
+  padding: 24px;
+  height: calc(100vh - @layout-header-height - 48px);
+  background: @layout-body-background;
+  overflow: hidden;
+}
+
+.sider {
+  width: 300px;
+  margin-right: 24px;
+  
+  :global {
+    .ant-card {
+      height: 100%;
+    }
+    
+    .ant-card-body {
+      height:100%;
+      // padding: 12px;
+      overflow: auto;
+    }
+
+    .ant-tree {
+      .ant-tree-treenode {
+        display: flex;
+        align-items: center;
+        padding: 0;
+        cursor: pointer;
+        
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.04);
+        }
+        
+        .ant-tree-switcher {
+          display: none;
+        }
+        
+        .ant-tree-node-content-wrapper {
+          display: flex;
+          align-items: center;
+          flex: 1;
+          min-height: 32px;
+          line-height: 32px;
+          padding: 0 4px;
+          margin-left: 0;
+          
+          .ant-tree-iconEle {
+            display: flex;
+            align-items: center;
+            height: 32px;
+            margin-right: -4px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.treeNodeContent {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-height: 32px;
+  line-height: 32px;
+  user-select: none;
+  transition: all 0.3s;
+  width: 100%;
+  padding-right: 8px;
+}
+
+.content {
+  flex: 1;
+  overflow: hidden;
+  
+  :global {
+    .ant-card {
+      height: 100%;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+      border-radius: 8px;
+      border: none;
+    }
+    
+    .ant-card-body {
+      height: 100%;
+      // padding: 24px;
+      overflow: auto;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 3px;
+        
+        &:hover {
+          background: rgba(0, 0, 0, 0.2);
+        }
+      }
+    }
+  }
+}
+
+.document {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .documentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    // margin-bottom: 24px;
+    padding: 16px;
+    border-bottom: 1px solid @border-color-split;
+
+    h4.ant-typography {
+      margin-bottom: 0;
+      font-size: 20px;
+      font-weight: 500;
+      color: @heading-color;
+
+      .ant-typography-edit {
+        color: @text-color-secondary;
+      }
+    }
+  }
+
+  .documentMeta {
+    margin-bottom: 16px;
+    color: @text-color-secondary;
+    font-size: @font-size-sm;
+    display: flex;
+    align-items: center;
+
+    .metaLabel {
+      margin-right: 8px;
+    }
+
+    :global {
+      .ant-select {
+        color: @text-color-secondary;
+        
+        .ant-select-selector {
+          padding: 0;
+        }
+        
+        &:not(.ant-select-open) {
+          .ant-select-selector {
+            background: transparent;
+          }
+        }
+      }
+    }
+  }
+
+  .documentContent {
+    flex: 1;
+    overflow: hidden;
+    background-color: #fff;
+    border-radius: @border-radius-base;
+  }
+}
+
+.contextMenu {
+  background: #fff;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: @text-color-secondary;
+}
+
+.editor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: @border-radius-base;
+  overflow: hidden;
+
+  .toolbar {
+    border-bottom: 1px solid #e8e8e8;
+    padding: 8px 16px;
+    background-color: #fafafa;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  }
+
+  .editorBody {
+    flex: 1;
+    overflow: auto;
+    // padding: 24px 32px;
+    
+    &::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 3px;
+      
+      &:hover {
+        background: rgba(0, 0, 0, 0.2);
+      }
+    }
+    
+    :global {
+      .w-e-text-container {
+        height: calc(100% - 32px) !important;
+      }
+
+      .w-e-scroll {
+        height: 100% !important;
+      }
+
+      .w-e-text {
+        min-height: 500px !important;
+        padding: 0 !important;
+        font-size: 15px !important;
+        line-height: 1.8 !important;
+        color: @text-color !important;
+
+        p {
+          margin-bottom: 16px !important;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+          margin-top: 24px !important;
+          margin-bottom: 16px !important;
+          font-weight: 500 !important;
+          color: @heading-color !important;
+        }
+
+        h1 { font-size: 28px !important; }
+        h2 { font-size: 24px !important; }
+        h3 { font-size: 20px !important; }
+        h4 { font-size: 18px !important; }
+        h5 { font-size: 16px !important; }
+        h6 { font-size: 15px !important; }
+
+        code {
+          background-color: #f6f6f6 !important;
+          padding: 2px 6px !important;
+          border-radius: 3px !important;
+          font-family: Consolas, Monaco, 'Andale Mono', monospace !important;
+        }
+
+        pre {
+          background-color: #f6f6f6 !important;
+          padding: 16px !important;
+          border-radius: 6px !important;
+          margin: 16px 0 !important;
+        }
+
+        blockquote {
+          border-left: 4px solid @primary-color !important;
+          padding-left: 16px !important;
+          color: @text-color-secondary !important;
+          margin: 16px 0 !important;
+        }
+      }
+    }
+  }
+
+  :global {
+    .w-e-toolbar {
+      border: none !important;
+      background-color: #fafafa !important;
+
+      .w-e-bar-item {
+        margin: 0 2px !important;
+        border-radius: 4px !important;
+        
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.06) !important;
+        }
+      }
+
+      .w-e-bar-divider {
+        border-color: #e8e8e8 !important;
+        margin: 0 8px !important;
+      }
+    }
+
+    .w-e-text-container {
+      border: none !important;
+      background-color: #fff !important;
+    }
+  }
+} 
