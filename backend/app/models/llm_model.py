@@ -2,6 +2,7 @@
 大语言模型信息模型
 """
 from sqlalchemy import Column, String, Boolean, Enum as SQLEnum
+from sqlalchemy.orm import relationship
 from enum import Enum
 from app.models.base_model import BaseDBModel
 
@@ -43,6 +44,14 @@ class LLMModel(BaseDBModel):
         String(500),
         nullable=True,
         comment="模型描述"
+    )
+    
+    # 关联关系
+    feature_mappings = relationship(
+        "LLMFeatureMapping",
+        back_populates="llm_model",
+        lazy="select",
+        cascade="all, delete-orphan"
     )
     
     def __repr__(self) -> str:

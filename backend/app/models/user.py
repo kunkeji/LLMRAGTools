@@ -82,6 +82,12 @@ class User(BaseDBModel):
         lazy="select",
         cascade="all, delete-orphan"
     )
+    feature_mappings = relationship(
+        "LLMFeatureMapping",
+        back_populates="user",
+        lazy="select",
+        cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<User {self.username}>"

@@ -2,7 +2,16 @@
 用户API路由配置
 """
 from fastapi import APIRouter
-from app.api.v1.user.endpoints import auth, password, profile, llm, channel, email, document
+from app.api.v1.user.endpoints import (
+    auth,
+    profile,
+    password,
+    llm,
+    channel,
+    email,
+    document,
+    feature_mapping
+)
 
 router = APIRouter()
 
@@ -39,7 +48,7 @@ router.include_router(
     channel.router,
     prefix="/channel",  # 将渠道管理接口放在 /api/user/channel 下
     tags=["渠道管理"]
-) 
+)
 
 # 邮箱提供商管理路由
 router.include_router(
@@ -53,4 +62,10 @@ router.include_router(
     document.router,
     prefix="/documents",
     tags=["文档管理"]
+)
+
+router.include_router(
+    feature_mapping.router,
+    prefix="/feature-mappings",
+    tags=["功能映射"]
 ) 

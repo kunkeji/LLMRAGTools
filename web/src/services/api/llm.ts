@@ -11,6 +11,32 @@ export interface CreateChannelParams {
 
 export interface UpdateChannelParams extends Partial<CreateChannelParams> {}
 
+// 功能映射相关接口
+export interface Feature {
+  feature_type: string;
+  name: string;
+  description: string;
+  default_prompt: string;
+}
+
+export interface FeatureMapping {
+  id: number;
+  user_id: number;
+  llm_model_id: number;
+  feature_type: string;
+  prompt_template?: string;
+  last_used_at?: string;
+  use_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SaveFeatureMappingParams {
+  llm_model_id: number;
+  feature_type: string;
+  prompt_template?: string;
+}
+
 export const llmApi = {
   // 获取可用的 LLM 模型列表
   getModels: () => {
@@ -61,6 +87,28 @@ export const llmApi = {
   testChannel: (id: number) => {
     return apiRequest<void>(`${API_URLS.USER.CHANNELS}/${id}/test`, {
       method: 'POST',
+    });
+  },
+
+  // 获取功能列表
+  getFeatures: () => {
+    return apiRequest<Feature[]>('/api/user/feature-mappings/features', {
+      method: 'GET',
+    });
+  },
+
+  // 获取用户功能映射
+  getFeatureMappings: () => {
+    return apiRequest<FeatureMapping[]>('/api/user/feature-mappings/mappings', {
+      method: 'GET',
+    });
+  },
+
+  // 保存功能映射
+  saveFeatureMapping: (params: SaveFeatureMappingParams) => {
+    return apiRequest<FeatureMapping>('/api/user/feature-mappings/mappings/save', {
+      method: 'POST',
+      data: params,
     });
   },
 }; 

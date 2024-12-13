@@ -52,6 +52,11 @@ export default defineConfig({
           component: './llm/channel/edit',
           hideInMenu: true,
         },
+        {
+          path: '/llm/mapping',
+          name: '功能映射',
+          component: './llm/mapping',
+        },
       ],
     },
     {
