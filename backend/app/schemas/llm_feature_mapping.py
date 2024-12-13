@@ -17,7 +17,7 @@ class LLMFeatureBase(BaseModel):
 class LLMFeatureRead(LLMFeatureBase):
     """功能定义读取Schema"""
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class LLMFeatureMappingBase(BaseModel):
     """功能映射基础Schema"""
@@ -42,4 +42,4 @@ class LLMFeatureMappingRead(LLMFeatureMappingBase, BaseSchema):
     use_count: int = 0
     
     class Config:
-        orm_mode = True
+        from_attributes = True
