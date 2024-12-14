@@ -26,7 +26,6 @@ from app.utils.email.parser import (
 )
 
 logger = logging.getLogger(__name__)
-
 def create_sync_task(account_id: int) -> Task:
     """创建邮件同步任务"""
     try:
