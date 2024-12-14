@@ -167,7 +167,7 @@ async def test_channel(
         # 获取第一个响应并计算时间
         first_token = None
         response_time = 0
-        for chunk in stream:
+        async for chunk in stream:
             # 计算响应时间（毫秒）
             response_time = int((time.perf_counter() - start_time) * 1000)
             first_token = chunk

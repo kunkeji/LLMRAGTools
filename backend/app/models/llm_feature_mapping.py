@@ -25,7 +25,7 @@ class LLMFeatureMapping(BaseDBModel):
         comment="用户ID"
     )
     
-    llm_model_id: int = Column(
+    channel_id: int = Column(
         Integer,
         ForeignKey("llm_channels.id", ondelete="CASCADE"),
         nullable=False,

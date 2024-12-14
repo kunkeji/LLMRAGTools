@@ -58,9 +58,9 @@ GET /api/v1/user/feature-mappings/features
 }
 ```
 
-## 获取用户功能映射
+## 获取用户映射配置
 
-获取当前用户配置的所有功能映射。
+获取用户的功能映射配置。
 
 ### 请求
 
@@ -78,13 +78,11 @@ GET /api/v1/user/feature-mappings/mappings
         {
             "id": 1,
             "user_id": 123,
-            "llm_model_id": 1,
+            "channel_id": 1,
             "feature_type": "document_write",
             "prompt_template": "自定义的提示词模板...",
             "last_used_at": "2023-12-13T10:00:00",
-            "use_count": 10,
-            "created_at": "2023-12-13T10:00:00",
-            "updated_at": "2023-12-13T10:00:00"
+            "use_count": 10
         }
     ]
 }
@@ -104,7 +102,7 @@ POST /api/v1/user/feature-mappings/mappings/save
 
 ```json
 {
-    "llm_model_id": 1,
+    "channel_id": 1,
     "feature_type": "document_write",
     "prompt_template": "自定义的提示词模板..."  // 可选
 }
@@ -112,7 +110,7 @@ POST /api/v1/user/feature-mappings/mappings/save
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| llm_model_id | integer | 是 | 渠道ID |
+| channel_id | integer | 是 | 渠道ID |
 | feature_type | string | 是 | 功能类型(document_write/document_improve/document_summary等) |
 | prompt_template | string | 否 | 自定义提示词模板,不填则使用默认模板 |
 
@@ -125,7 +123,7 @@ POST /api/v1/user/feature-mappings/mappings/save
     "data": {
         "id": 1,
         "user_id": 123,
-        "llm_model_id": 1,
+        "channel_id": 1,
         "feature_type": "document_write",
         "prompt_template": "自定义的提示词模板...",
         "last_used_at": null,

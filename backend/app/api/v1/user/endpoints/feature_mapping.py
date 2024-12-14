@@ -10,14 +10,11 @@ from app.api.v1.deps.auth import get_current_user
 from app.db.session import get_db
 from app.models.user import User
 from app.models.llm_feature import LLMFeature, FeatureType
-from app.models.llm_feature_mapping import LLMFeatureMapping
 from app.crud.llm_feature_mapping import crud_feature_mapping
 from app.schemas.response import response_success
 from app.schemas.llm_feature_mapping import (
-    LLMFeatureRead,
     LLMFeatureMappingCreate,
     LLMFeatureMappingUpdate,
-    LLMFeatureMappingRead
 )
 from app.features.feature_interface import FeatureInterface
 from app.core.exceptions import FeatureNotConfiguredError
@@ -70,7 +67,7 @@ async def save_mapping(
             db=db,
             db_obj=existing,
             obj_in=LLMFeatureMappingUpdate(
-                llm_model_id=mapping_in.llm_model_id,
+                channel_id=mapping_in.channel_id,
                 prompt_template=mapping_in.prompt_template
             )
         )

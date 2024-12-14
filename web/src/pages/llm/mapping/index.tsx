@@ -45,7 +45,7 @@ const MappingPage: React.FC = () => {
     setCurrentFeature(feature);
     const mapping = mappings.find(m => m.feature_type === feature.feature_type);
     form.setFieldsValue({
-      llm_model_id: mapping?.llm_model_id,
+      channel_id: mapping?.channel_id,
       prompt_template: mapping?.prompt_template || feature.default_prompt,
     });
     setModalVisible(true);
@@ -58,7 +58,7 @@ const MappingPage: React.FC = () => {
       setSubmitting(true);
       await llmApi.saveFeatureMapping({
         feature_type: currentFeature.feature_type,
-        llm_model_id: values.llm_model_id,
+        channel_id: values.channel_id,
         prompt_template: values.prompt_template,
       });
       message.success('保存成功');
@@ -90,7 +90,7 @@ const MappingPage: React.FC = () => {
       width: 150,
       render: (_: any, record: Feature) => {
         const mapping = mappings.find(m => m.feature_type === record.feature_type);
-        const channel = channels.find(c => c.id === mapping?.llm_model_id);
+        const channel = channels.find(c => c.id === mapping?.channel_id);
         return channel ? `${channel.channel_name} (${channel.model})` : '-';
       },
     },
@@ -149,7 +149,7 @@ const MappingPage: React.FC = () => {
           onFinish={handleSave}
         >
           <Form.Item
-            name="llm_model_id"
+            name="channel_id"
             label="选择渠道"
             rules={[{ required: true, message: '请选择渠道' }]}
           >

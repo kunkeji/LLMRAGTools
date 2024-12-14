@@ -22,7 +22,7 @@ export interface Feature {
 export interface FeatureMapping {
   id: number;
   user_id: number;
-  llm_model_id: number;
+  channel_id: number;
   feature_type: string;
   prompt_template?: string;
   last_used_at?: string;
@@ -32,7 +32,7 @@ export interface FeatureMapping {
 }
 
 export interface SaveFeatureMappingParams {
-  llm_model_id: number;
+  channel_id: number;
   feature_type: string;
   prompt_template?: string;
 }
