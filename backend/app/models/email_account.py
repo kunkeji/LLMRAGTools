@@ -2,6 +2,7 @@
 用户邮箱账户模型
 """
 from datetime import datetime
+from typing import List
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Boolean, Integer, ForeignKey, DateTime, Enum as SQLEnum
 from enum import Enum
@@ -171,6 +172,8 @@ class EmailAccount(BaseDBModel):
     
     # 关联关系
     user = relationship("User", back_populates="email_accounts")
+    emails: Mapped[List["Email"]] = relationship("Email", back_populates="account", cascade="all, delete-orphan")
+    sync_logs: Mapped[List["EmailSyncLog"]] = relationship("EmailSyncLog", back_populates="account", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<EmailAccount {self.email_address}>"

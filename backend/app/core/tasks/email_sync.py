@@ -1,16 +1,34 @@
-from datetime import datetime,timedelta
+"""
+邮件同步任务模块
+"""
+from datetime import datetime, timedelta
 import logging
+from typing import Dict, Any
+
 from sqlalchemy import text
 from app.core.tasks.registry import task_registry
 from app.utils.logger import logger_instance
 from app.models.log import LogType
 from app.models.task import Task, TaskStatus, TaskPriority
 from app.models.email_account import EmailAccount
+from app.models.email import Email, EmailAttachment
+from app.crud.email import email as crud_email
+from app.crud.email import email_sync_log as crud_sync_log
+from app.schemas.email import EmailCreate, EmailSyncLogCreate, EmailSyncLogUpdate
 from app.db.session import SessionLocal
+from app.utils.email.imap_client import IMAPClient
+from app.utils.email.parser import (
+    parse_email_date,
+    parse_email_address,
+    get_email_body,
+    get_attachment_info,
+    parse_email_addresses
+)
 
 logger = logging.getLogger(__name__)
 
 def create_sync_task(account_id: int) -> Task:
+    """创建邮件同步任务"""
     try:
         with SessionLocal() as db:
             account = db.query(EmailAccount).filter(
@@ -20,7 +38,7 @@ def create_sync_task(account_id: int) -> Task:
             if not account:
                 raise ValueError(f"邮件账户不存在: {account_id}")
             
-            # 检查是否已存在正在执行的同步任务TaskStatus.PENDING, 
+            # 检查是否已存在正在执行的同步任务
             existing_task = (
                 db.query(Task)
                 .filter(
@@ -31,7 +49,8 @@ def create_sync_task(account_id: int) -> Task:
                 )
                 .first()
             )
-            # 如果任务状态是队列中切下次同步时间大于当前时间则更改下次同步时间为当前时间
+            
+            # 如果任务状态是队列中且下次同步时间大于当前时间则更改下次同步时间为当前时间
             if existing_task and existing_task.status == TaskStatus.PENDING and existing_task.scheduled_at > datetime.now():
                 existing_task.scheduled_at = datetime.now()
                 db.commit()
@@ -51,8 +70,6 @@ def create_sync_task(account_id: int) -> Task:
                 )
                 return existing_task
             
-            
-            
             # 创建新任务
             task = Task(
                 name=f"同步邮件账户 {account_id}",
@@ -60,16 +77,13 @@ def create_sync_task(account_id: int) -> Task:
                 args={"account_id": account_id},
                 status=TaskStatus.PENDING,
                 priority=TaskPriority.NORMAL.value,
-                scheduled_at=datetime.now(),  # 立即执行
+                scheduled_at=datetime.now(),
                 max_retries=3,
-                timeout=3600  # 1小时超时
+                timeout=3600
             )
             
             db.add(task)
-            
-            # 更新账户同步状态
-            account.last_sync_time = datetime.now()
-            account.sync_status = "PENDING"  # 设置为等待中
+            account.sync_status = "PENDING"
             
             db.commit()
             db.refresh(task)
@@ -100,14 +114,8 @@ def create_sync_task(account_id: int) -> Task:
         raise
 
 @task_registry.register(name="sync_email_account")
-async def sync_email_account(account_id: int):
-    """
-    邮件同步任务的占位实现
-    后续将实现完整的邮件同步功能
-    
-    Args:
-        account_id: 邮件账户ID
-    """
+async def sync_email_account(account_id: int) -> Dict[str, Any]:
+    """执行邮件同步任务"""
     try:
         logger_instance.info(
             message="开始执行邮件同步任务",
@@ -126,49 +134,199 @@ async def sync_email_account(account_id: int):
             
             if not account:
                 raise ValueError(f"邮件账户不存在: {account_id}")
-            
-            # 这里是占位的任务逻辑
-            # 后续将实现实际的邮件同步功能
-            
-            # 更新账户同步状态
-            account.last_sync_time = datetime.now()
-            account.sync_status = "completed"  # 设置为同步完成
-            
-            # 如果开启了自动同步，创建下一次的同步任务
-            next_sync_time = datetime.now() + timedelta(minutes=account.sync_interval)
-            next_task = Task(
-                name=f"同步邮件账户 {account_id}",
-                func_name="sync_email_account",
-                args={"account_id": account_id},
-                status=TaskStatus.PENDING,
-                priority=TaskPriority.NORMAL.value,
-                scheduled_at=next_sync_time,
-                max_retries=3,
-                timeout=3600
-            )
-            db.add(next_task)
-            
-            db.commit()
-            
-            logger_instance.info(
-                message="邮件同步任务执行完成",
-                module="tasks",
-                function="sync_email_account",
-                type=LogType.SYSTEM,
-                details={
-                    "account_id": account_id,
-                    "next_sync_time": next_sync_time.isoformat()
-                }
+                
+            # 创建同步日志
+            sync_log = crud_sync_log.create(
+                db,
+                obj_in=EmailSyncLogCreate(
+                    account_id=account_id,
+                    start_time=datetime.now(),
+                    status="RUNNING",
+                    sync_type="INCREMENT" if account.last_sync_time else "FULL"
+                )
             )
             
-        return {
-            "status": "success",
-            "message": "邮件同步任务执行完成",
-            "account_id": account_id,
-            "sync_time": datetime.now().isoformat(),
-            "next_sync_time": next_sync_time.isoformat() 
-        }
-        
+            try:
+                # 使用IMAP客户端
+                with IMAPClient(account.imap_host, account.imap_port, account.use_ssl) as imap:
+                    imap.connect(account.email_address, account.auth_token)
+                    imap.select_folder("INBOX")
+                    
+                    # 获取邮件列表
+                    emails = imap.get_emails_since(account.last_sync_time)
+                    
+                    total_emails = len(emails)
+                    new_emails = 0
+                    updated_emails = 0
+                    
+                    # 更新同步日志
+                    crud_sync_log.update(
+                        db,
+                        db_obj=sync_log,
+                        obj_in=EmailSyncLogUpdate(
+                            total_emails=total_emails
+                        )
+                    )
+                    
+                    # 处理每封邮件
+                    for email_body, msg in emails:
+                        try:
+                            # 解析邮件基本信息
+                            message_id = msg.get('Message-ID', '')
+                            subject = msg.get('Subject', '')
+                            from_name, from_address = parse_email_address(msg.get('From', ''))
+                            
+                            # 解析日期
+                            date_str = msg.get('Date')
+                            date = parse_email_date(date_str) if date_str else datetime.utcnow()
+                            
+                            # 解析收件人信息
+                            to_list = parse_email_addresses(msg.get_all('To', []))
+                            cc_list = parse_email_addresses(msg.get_all('Cc', []) or [])
+                            bcc_list = parse_email_addresses(msg.get_all('Bcc', []) or [])
+                            
+                            # 获取邮件内容
+                            content, content_type = get_email_body(msg)
+                            
+                            # 检查是否已存在该邮件
+                            existing_email = crud_email.get_by_message_id(db, account_id=account_id, message_id=message_id)
+                            
+                            if existing_email:
+                                # 更新现有邮件
+                                crud_email.update(
+                                    db,
+                                    db_obj=existing_email,
+                                    obj_in={
+                                        "subject": subject,
+                                        "content": content,
+                                        "content_type": content_type
+                                    }
+                                )
+                                updated_emails += 1
+                            else:
+                                # 创建新邮件
+                                email_obj = crud_email.create(
+                                    db,
+                                    obj_in=EmailCreate(
+                                        account_id=account_id,
+                                        message_id=message_id,
+                                        subject=subject,
+                                        from_address=from_address,
+                                        from_name=from_name,
+                                        to_address=to_list,
+                                        cc_address=cc_list,
+                                        bcc_address=bcc_list,
+                                        date=date,
+                                        content_type=content_type,
+                                        content=content,
+                                        raw_content=email_body.decode(),
+                                        has_attachments=False,
+                                        size=len(email_body)
+                                    )
+                                )
+                                
+                                # 处理附件
+                                if msg.is_multipart():
+                                    for part in msg.walk():
+                                        if part.get_content_maintype() == 'multipart':
+                                            continue
+                                        if part.get_content_maintype() != 'text':
+                                            attachment = get_attachment_info(part, email_obj.id)
+                                            if attachment:
+                                                email_obj.has_attachments = True
+                                                db.add(EmailAttachment(**attachment.dict()))
+                                
+                                new_emails += 1
+                            
+                            # 定期提交事务和更新同步状态
+                            if (new_emails + updated_emails) % 10 == 0:
+                                db.commit()
+                                crud_sync_log.update_sync_stats(
+                                    db,
+                                    sync_id=sync_log.id,
+                                    new_emails=new_emails,
+                                    updated_emails=updated_emails
+                                )
+                                
+                        except Exception as e:
+                            logger.error(f"处理邮件失败: {str(e)}")
+                            continue
+                    
+                    # 更新同步完成状态
+                    crud_sync_log.update(
+                        db,
+                        db_obj=sync_log,
+                        obj_in=EmailSyncLogUpdate(
+                            status="COMPLETED",
+                            end_time=datetime.now(),
+                            new_emails=new_emails,
+                            updated_emails=updated_emails
+                        )
+                    )
+                    
+                    # 更新账户同步状态
+                    account.last_sync_time = datetime.now()
+                    account.sync_status = "COMPLETED"
+                    account.total_emails = db.query(Email).filter(Email.account_id == account_id).count()
+                    account.unread_emails = db.query(Email).filter(
+                        Email.account_id == account_id,
+                        Email.is_read == False
+                    ).count()
+                    
+                    # 如果开启了自动同步，创建下一次的同步任务
+                    next_sync_time = datetime.now() + timedelta(minutes=account.sync_interval)
+                    next_task = Task(
+                        name=f"同步邮件账户 {account_id}",
+                        func_name="sync_email_account",
+                        args={"account_id": account_id},
+                        status=TaskStatus.PENDING,
+                        priority=TaskPriority.NORMAL.value,
+                        scheduled_at=next_sync_time,
+                        max_retries=3,
+                        timeout=3600
+                    )
+                    db.add(next_task)
+                    
+                    db.commit()
+                    
+                    logger_instance.info(
+                        message="邮件同步任务执行完成",
+                        module="tasks",
+                        function="sync_email_account",
+                        type=LogType.SYSTEM,
+                        details={
+                            "account_id": account_id,
+                            "total_emails": total_emails,
+                            "new_emails": new_emails,
+                            "updated_emails": updated_emails,
+                            "next_sync_time": next_sync_time.isoformat()
+                        }
+                    )
+                    
+                    return {
+                        "status": "success",
+                        "message": "邮件同步任务执行完成",
+                        "account_id": account_id,
+                        "total_emails": total_emails,
+                        "new_emails": new_emails,
+                        "updated_emails": updated_emails,
+                        "sync_time": datetime.now().isoformat(),
+                        "next_sync_time": next_sync_time.isoformat()
+                    }
+                    
+            except Exception as e:
+                # 更新同步失败状态
+                crud_sync_log.update(
+                    db,
+                    db_obj=sync_log,
+                    obj_in=EmailSyncLogUpdate(
+                        status="FAILED",
+                        end_time=datetime.now(),
+                        error_message=str(e)
+                    )
+                )
+                raise
+                
     except Exception as e:
         # 更新账户同步状态为失败
         with SessionLocal() as db:
@@ -177,7 +335,7 @@ async def sync_email_account(account_id: int):
                 EmailAccount.deleted_at.is_(None)
             ).first()
             if account:
-                account.sync_status = "failed"
+                account.sync_status = "FAILED"
                 db.commit()
         
         logger_instance.error(

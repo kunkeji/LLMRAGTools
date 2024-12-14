@@ -11,5 +11,8 @@ from app.models import (
     EmailAccount,
     Task,
     LLMFeature,
-    LLMFeatureMapping
+    LLMFeatureMapping,
+    Email,
+    EmailAttachment,
+    EmailSyncLog
 )
