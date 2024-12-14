@@ -1,6 +1,7 @@
 import { IDomEditor } from '@wangeditor/editor';
 import { message } from 'antd';
 import { Boot } from '@wangeditor/editor';
+import { marked } from 'marked';
 
 // AI帮写接口
 async function* fetchAIWriting(message: string) {
@@ -69,12 +70,22 @@ class CustomButtonMenu {
 
       // 流式获取AI生成的内容
       let content = '';
+      let messageall = '';
       for await (const chunk of fetchAIWriting(prompt)) {
         // 清空
+        messageall += chunk;
         content = chunk;
         const html = `${content}`;
         editor.dangerouslyInsertHtml(html);
       }
+      // AI 输出完成后，将 markdown 转换为 HTML
+      const htmlContent = marked(messageall, {
+        breaks: true,
+        gfm: true,
+      });
+
+      // 替换为转换后的 HTML
+      editor.setHtml(htmlContent);
 
       message.success('AI写作完成');
     } catch (error: any) {
