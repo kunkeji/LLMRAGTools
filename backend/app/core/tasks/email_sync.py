@@ -12,8 +12,7 @@ from app.models.log import LogType
 from app.models.task import Task, TaskStatus, TaskPriority
 from app.models.email_account import EmailAccount
 from app.models.email import Email, EmailAttachment
-from app.crud.email import email as crud_email
-from app.crud.email import email_sync_log as crud_sync_log
+from app.crud.email import crud_email, crud_email_sync_log
 from app.schemas.email import EmailCreate, EmailSyncLogCreate, EmailSyncLogUpdate
 from app.db.session import SessionLocal
 from app.utils.email.imap_client import IMAPClient
@@ -135,7 +134,7 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                 raise ValueError(f"邮件账户不存在: {account_id}")
                 
             # 创建同步日志
-            sync_log = crud_sync_log.create(
+            sync_log = crud_email_sync_log.create(
                 db,
                 obj_in=EmailSyncLogCreate(
                     account_id=account_id,
@@ -159,7 +158,7 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                     updated_emails = 0
                     
                     # 更新同步日志
-                    crud_sync_log.update(
+                    crud_email_sync_log.update(
                         db,
                         db_obj=sync_log,
                         obj_in=EmailSyncLogUpdate(
@@ -240,7 +239,7 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                             # 定期提交事务和更新同步状态
                             if (new_emails + updated_emails) % 10 == 0:
                                 db.commit()
-                                crud_sync_log.update_sync_stats(
+                                crud_email_sync_log.update_sync_stats(
                                     db,
                                     sync_id=sync_log.id,
                                     new_emails=new_emails,
@@ -252,7 +251,7 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                             continue
                     
                     # 更新同步完成状态
-                    crud_sync_log.update(
+                    crud_email_sync_log.update(
                         db,
                         db_obj=sync_log,
                         obj_in=EmailSyncLogUpdate(
@@ -315,7 +314,7 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                     
             except Exception as e:
                 # 更新同步失败状态
-                crud_sync_log.update(
+                crud_email_sync_log.update(
                     db,
                     db_obj=sync_log,
                     obj_in=EmailSyncLogUpdate(

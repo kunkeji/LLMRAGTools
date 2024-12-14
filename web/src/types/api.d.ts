@@ -183,4 +183,45 @@ declare namespace API {
     nodes: DocumentTreeNode[];
     total: number;
   }
+
+  // 邮件类型
+  interface Email {
+    id: number;
+    account_id: number;
+    message_id: string;
+    subject: string;
+    from_address: string;
+    from_name: string | null;
+    to_address: string[];
+    cc_address: string[];
+    bcc_address: string[];
+    date: string;
+    content_type: string;
+    content: string;
+    raw_content: string | null;
+    has_attachments: boolean;
+    size: number;
+    is_read: boolean;
+    is_flagged: boolean;
+    is_deleted: boolean;
+    folder: string;
+    importance: number;
+    in_reply_to: string | null;
+    references: string[] | null;
+    deleted_at: string | null;
+    created_at: string;
+    updated_at: string;
+    attachments: EmailAttachment[];
+  }
+
+  // 邮件附件类型
+  interface EmailAttachment {
+    id: number;
+    email_id: number;
+    filename: string;
+    content_type: string;
+    size: number;
+    created_at: string;
+    updated_at: string;
+  }
 }

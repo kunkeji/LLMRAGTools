@@ -111,6 +111,18 @@ export default defineConfig({
           component: './email/account/edit',
           hideInMenu: true,
         },
+        {
+          path: '/email/list/:accountId',
+          name: '邮件列表',
+          component: './email/list',
+          hideInMenu: true,
+        },
+        {
+          path: '/email/list/:accountId/:emailId',
+          name: '邮件详情',
+          component: './email/list/detail',
+          hideInMenu: true,
+        },
       ],
     },
     {

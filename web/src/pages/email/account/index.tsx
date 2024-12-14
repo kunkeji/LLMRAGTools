@@ -25,7 +25,7 @@ const EmailAccountList: React.FC = () => {
   const [testingId, setTestingId] = useState<number>();
   const [syncingId, setSyncingId] = useState<number>();
 
-  // 加载账户列表
+  // 加载账���列表
   const loadAccounts = async () => {
     try {
       setLoading(true);
@@ -77,7 +77,7 @@ const EmailAccountList: React.FC = () => {
     }
   };
 
-  // 同步邮件账户
+  // 同步邮件��户
   const handleSync = async (id: number) => {
     try {
       setSyncingId(id);
@@ -120,7 +120,9 @@ const EmailAccountList: React.FC = () => {
       width: '30%',
       render: (_, record) => (
         <div>
-          <div style={{ fontSize: '14px', marginBottom: 4 }}>{record.email_address}</div>
+          <div style={{ fontSize: '14px', marginBottom: 4 }}>
+            <a onClick={() => history.push(`/email/list/${record.id}`)}>{record.email_address}</a>
+          </div>
           <div style={{ fontSize: '12px', color: '#666' }}>
             <Tag color={syncStatusConfig[record.sync_status].color}>
               {record.sync_status === 'SYNCING' && <SyncOutlined spin />}

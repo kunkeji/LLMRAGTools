@@ -19,6 +19,25 @@ class CRUDEmail(CRUDBase[Email, EmailCreate, EmailUpdate]):
             )
         ).first()
     
+    def get_email_count(
+        self,
+        db: Session,
+        *,
+        account_id: int,
+        folder: Optional[str] = None,
+        is_read: Optional[bool] = None,
+        is_flagged: Optional[bool] = None
+    ) -> int:
+        """获取邮件总数"""
+        query = db.query(self.model).filter(self.model.account_id == account_id)
+        if folder:
+            query = query.filter(self.model.folder == folder)
+        if is_read is not None:
+            query = query.filter(self.model.is_read == is_read)
+        if is_flagged is not None:
+            query = query.filter(self.model.is_flagged == is_flagged)
+        return query.count()
+    
     def get_multi_by_account(
         self,
         db: Session,
@@ -31,10 +50,19 @@ class CRUDEmail(CRUDBase[Email, EmailCreate, EmailUpdate]):
         limit: int = 100,
         order_by: str = "date",
         order_desc: bool = True
-    ) -> List[Email]:
-        """获取账户的邮件列表"""
-        query = db.query(self.model).filter(self.model.account_id == account_id)
+    ) -> tuple[List[Email], int]:
+        """获取账户的邮件列表和总数"""
+        # 获取总数
+        total = self.get_email_count(
+            db,
+            account_id=account_id,
+            folder=folder,
+            is_read=is_read,
+            is_flagged=is_flagged
+        )
         
+        # 获取邮件列表
+        query = db.query(self.model).filter(self.model.account_id == account_id)
         if folder:
             query = query.filter(self.model.folder == folder)
         if is_read is not None:
@@ -48,7 +76,8 @@ class CRUDEmail(CRUDBase[Email, EmailCreate, EmailUpdate]):
         else:
             query = query.order_by(getattr(self.model, order_by))
             
-        return query.offset(skip).limit(limit).all()
+        emails = query.offset(skip).limit(limit).all()
+        return emails, total
     
     def get_unread_count(self, db: Session, *, account_id: int, folder: Optional[str] = None) -> int:
         """获取未读邮件数量"""
@@ -139,6 +168,13 @@ class CRUDEmailSyncLog(CRUDBase[EmailSyncLog, EmailSyncLogCreate, EmailSyncLogUp
             db.refresh(sync_log)
         return sync_log
 
-email = CRUDEmail(Email)
-email_attachment = CRUDEmailAttachment(EmailAttachment)
-email_sync_log = CRUDEmailSyncLog(EmailSyncLog)
+# Export the CRUD instances
+crud_email = CRUDEmail(Email)
+crud_email_attachment = CRUDEmailAttachment(EmailAttachment)
+crud_email_sync_log = CRUDEmailSyncLog(EmailSyncLog)
+
+__all__ = [
+    'crud_email',
+    'crud_email_attachment', 
+    'crud_email_sync_log'
+]
