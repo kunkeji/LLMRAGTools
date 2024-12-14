@@ -9,5 +9,7 @@ from app.models import (
     LLMChannel,
     EmailProvider,
     EmailAccount,
-    Task
+    Task,
+    LLMFeature,
+    LLMFeatureMapping
 )
