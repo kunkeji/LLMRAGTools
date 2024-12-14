@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Tree, Button, Modal, message, Typography, Menu, Input, Select } from 'antd';
+import { Card, Tree, Button, Modal, message, Typography, Menu, Input, Select, Space } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, FolderOutlined, FileOutlined, EyeOutlined } from '@ant-design/icons';
 import { documentApi } from '@/services/api/document';
 import { Editor, Toolbar } from '@wangeditor/editor-for-react';
@@ -148,32 +148,18 @@ const DocumentPage: React.FC = () => {
     }
   };
 
-  // 加载文档时设置编辑器内容
+  // 加载文档时设置编辑器内���
   useEffect(() => {
     if (selectedDoc) {
       setHtml(selectedDoc.content || '');
     }
   }, [selectedDoc]);
 
-  // 监听编辑器内容变自动保存
+  // 监听编辑器内容变化
   const handleEditorChange = useCallback((editor: IDomEditor) => {
     const newHtml = editor.getHtml();
     setHtml(newHtml);
-    
-    // 自动保存
-    if (selectedDoc) {
-      const timer = setTimeout(async () => {
-        try {
-          await documentApi.updateDocument(selectedDoc.id, {
-            content: newHtml,
-          });
-        } catch (error: any) {
-          message.error(error.message || '保存失败');
-        }
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedDoc]);
+  }, []);
 
   // 组件销毁时销毁编辑器
   useEffect(() => {
@@ -408,6 +394,19 @@ const DocumentPage: React.FC = () => {
     }));
   };
 
+  // 处理保存文档
+  const handleSave = async () => {
+    if (!selectedDoc) return;
+    try {
+      await documentApi.updateDocument(selectedDoc.id, {
+        content: html,
+      });
+      message.success('保存成功');
+    } catch (error: any) {
+      message.error(error.message || '保存失败');
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.sider}>
@@ -473,13 +472,21 @@ const DocumentPage: React.FC = () => {
                 >
                   {selectedDoc.title}
                 </Title>
-                <Button
-                  type="link"
-                  icon={<EyeOutlined />}
-                  onClick={() => history.push(`/document/preview/${selectedDoc.id}`)}
-                >
-                  预览
-                </Button>
+                <Space>
+                  <Button
+                    type="primary"
+                    onClick={handleSave}
+                  >
+                    保存
+                  </Button>
+                  <Button
+                    type="link"
+                    icon={<EyeOutlined />}
+                    onClick={() => history.push(`/document/preview/${selectedDoc.id}`)}
+                  >
+                    预览
+                  </Button>
+                </Space>
               </div>
               <div className={styles.documentContent}>
                 <div className={styles.editor}>

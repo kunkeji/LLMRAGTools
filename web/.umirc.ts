@@ -7,7 +7,7 @@ export default defineConfig({
   initialState: {},
   request: {},
   layout: {
-    title: '代理工具平台',
+    title: '壳林智能AI',
     locale: false,
   },
   routes: [

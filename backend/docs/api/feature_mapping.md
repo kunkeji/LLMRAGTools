@@ -112,7 +112,7 @@ POST /api/v1/user/feature-mappings/mappings/save
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| llm_model_id | integer | 是 | LLM模型ID |
+| llm_model_id | integer | 是 | 渠道ID |
 | feature_type | string | 是 | 功能类型(document_write/document_improve/document_summary等) |
 | prompt_template | string | 否 | 自定义提示词模板,不填则使用默认模板 |
 

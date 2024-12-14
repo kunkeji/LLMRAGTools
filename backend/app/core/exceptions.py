@@ -45,4 +45,12 @@ async def python_exception_handler(request: Request, exc: Exception) -> JSONResp
             code=ResponseCode.SERVER_ERROR,
             message=str(exc)
         )
-    ) 
+    )
+
+"""
+自定义异常类
+"""
+
+class FeatureNotConfiguredError(Exception):
+    """功能未配置错误"""
+    pass 

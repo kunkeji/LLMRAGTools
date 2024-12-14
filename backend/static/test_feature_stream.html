@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feature Stream Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 200px;
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Feature Stream Test</h1>
+    
+    <div class="form-group">
+        <label for="token">Bearer Token:</label>
+        <input type="text" id="token" placeholder="Enter your bearer token">
+    </div>
+
+    <div class="form-group">
+        <label for="featureType">Feature Type:</label>
+        <select id="featureType">
+            <option value="DOCUMENT_WRITE">文档写作</option>
+            <option value="DOCUMENT_IMPROVE">文档改进</option>
+            <option value="DOCUMENT_SUMMARY">文档总结</option>
+            <option value="DOCUMENT_TRANSLATE">文档翻译</option>
+            <option value="CODE_COMMENT">代码注释</option>
+            <option value="CODE_REVIEW">代码审查</option>
+            <option value="CODE_OPTIMIZE">代码优化</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="message">Message:</label>
+        <textarea id="message" rows="5" placeholder="Enter your message"></textarea>
+    </div>
+
+    <button onclick="sendRequest()">Send Request</button>
+
+    <div id="error" class="error"></div>
+    <pre id="output"></pre>
+
+    <script>
+        async function sendRequest() {
+            const token = document.getElementById('token').value;
+            const featureType = document.getElementById('featureType').value;
+            const message = document.getElementById('message').value;
+            const outputDiv = document.getElementById('output');
+            const errorDiv = document.getElementById('error');
+            
+            // Clear previous output and errors
+            outputDiv.textContent = '';
+            errorDiv.textContent = '';
+            
+            if (!token || !message) {
+                errorDiv.textContent = 'Please fill in all required fields';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/user/feature-mappings/execute/${featureType}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    
+                    const text = decoder.decode(value);
+                    outputDiv.textContent += text;
+                    // Auto scroll to bottom
+                    outputDiv.scrollTop = outputDiv.scrollHeight;
+                }
+            } catch (error) {
+                errorDiv.textContent = `Error: ${error.message}`;
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+</html> 

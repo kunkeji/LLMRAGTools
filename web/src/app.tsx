@@ -81,8 +81,8 @@ export async function getInitialState() {
 // 运行时布局配置
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
   return {
-    logo: 'https://img.alicdn.com/tfs/TB1YHEpwUT1gK0jSZFhXXaAtVXa-28-27.svg',
-    title: '代理工具平台',
+    logo: 'https://association.kunkeji.com/uploads/20241014/a9a667b6201b2550b3f7e431641427e8.png',
+    title: '壳林智能AI',
     layout: 'mix',
     splitMenus: false,
     menu: {

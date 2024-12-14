@@ -21,7 +21,7 @@ class LLMFeatureRead(LLMFeatureBase):
 
 class LLMFeatureMappingBase(BaseModel):
     """功能映射基础Schema"""
-    llm_model_id: int = Field(..., description="LLM模型ID")
+    llm_model_id: int = Field(..., description="渠道ID")
     feature_type: FeatureType = Field(..., description="功能类型")
     prompt_template: Optional[str] = Field(None, description="自定义提示词模板")
 
@@ -31,7 +31,7 @@ class LLMFeatureMappingCreate(LLMFeatureMappingBase):
 
 class LLMFeatureMappingUpdate(BaseModel):
     """功能映射更新Schema"""
-    llm_model_id: Optional[int] = Field(None, description="LLM模型ID")
+    llm_model_id: Optional[int] = Field(None, description="渠道ID")
     prompt_template: Optional[str] = Field(None, description="自定义提示词模板")
 
 class LLMFeatureMappingRead(LLMFeatureMappingBase, BaseSchema):

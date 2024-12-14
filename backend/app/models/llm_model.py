@@ -46,13 +46,5 @@ class LLMModel(BaseDBModel):
         comment="模型描述"
     )
     
-    # 关联关系
-    feature_mappings = relationship(
-        "LLMFeatureMapping",
-        back_populates="llm_model",
-        lazy="select",
-        cascade="all, delete-orphan"
-    )
-    
     def __repr__(self) -> str:
         return f"<LLMModel {self.name} ({self.mapping_name})>" 

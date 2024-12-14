@@ -1,7 +1,7 @@
 """
 LLM统一调用工具
 """
-from typing import Optional, Dict, Any, Generator
+from typing import Optional, Dict, Any, AsyncGenerator
 from .providers import zhipu_sdk
 from .mapping import DEFAULT_PROVIDER, MODEL_MAPPING
 
@@ -45,14 +45,14 @@ class LLMClient:
         return sdk.generate(prompt, message, api_key=api_key, model=model, **kwargs)
     
     @staticmethod
-    def generate_stream(
+    async def generate_stream(
         prompt: str,
         message: str,
         api_key: str,
         provider: str = DEFAULT_PROVIDER,
         model: Optional[str] = None,
         **kwargs: Any
-    ) -> Generator[str, None, None]:
+    ) -> AsyncGenerator[str, None]:
         """
         流式生成文本
         
@@ -77,4 +77,5 @@ class LLMClient:
             model = MODEL_MAPPING[model]
         
         # 调用对应的SDK
-        yield from sdk.generate_stream(prompt, message, api_key=api_key, model=model, **kwargs)
+        async for chunk in sdk.generate_stream(prompt, message, api_key=api_key, model=model, **kwargs):
+            yield chunk

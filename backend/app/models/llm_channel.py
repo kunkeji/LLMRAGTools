@@ -79,6 +79,14 @@ class LLMChannel(BaseDBModel):
     # 关联用户
     user = relationship("User", back_populates="llm_channels")
 
+    # 关联关系
+    feature_mappings = relationship(
+        "LLMFeatureMapping",
+        back_populates="channel",
+        lazy="select",
+        cascade="all, delete-orphan"
+    )
+
     def __repr__(self) -> str:
         return f"<LLMChannel {self.channel_name} ({self.model_type}/{self.model})>"
 

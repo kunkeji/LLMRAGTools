@@ -80,7 +80,7 @@ export default (props: any) => {
   };
   const { initialState, loading, setInitialState } = initialInfo;
   const userConfig = {
-  "title": "代理工具平台",
+  "title": "壳林智能AI",
   "locale": false
 };
 const formatMessage = undefined;

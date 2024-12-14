@@ -11,7 +11,7 @@ const MappingPage: React.FC = () => {
   const [form] = Form.useForm();
   const [features, setFeatures] = useState<Feature[]>([]);
   const [mappings, setMappings] = useState<FeatureMapping[]>([]);
-  const [models, setModels] = useState<API.LLMModel[]>([]);
+  const [channels, setChannels] = useState<API.LLMChannel[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentFeature, setCurrentFeature] = useState<Feature>();
@@ -21,14 +21,14 @@ const MappingPage: React.FC = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [featuresData, mappingsData, modelsData] = await Promise.all([
+      const [featuresData, mappingsData, channelsData] = await Promise.all([
         llmApi.getFeatures(),
         llmApi.getFeatureMappings(),
-        llmApi.getModels(),
+        llmApi.getChannels(),
       ]);
       setFeatures(featuresData);
       setMappings(mappingsData);
-      setModels(modelsData);
+      setChannels(channelsData);
     } catch (error: any) {
       message.error(error.message || '加载数据失败');
     } finally {
@@ -85,20 +85,20 @@ const MappingPage: React.FC = () => {
       width: 200,
     },
     {
-      title: '当前模型',
+      title: '当前渠道',
       key: 'model',
       width: 150,
-      render: (_, record: Feature) => {
+      render: (_: any, record: Feature) => {
         const mapping = mappings.find(m => m.feature_type === record.feature_type);
-        const model = models.find(m => m.id === mapping?.llm_model_id);
-        return model?.name || '-';
+        const channel = channels.find(c => c.id === mapping?.llm_model_id);
+        return channel ? `${channel.channel_name} (${channel.model})` : '-';
       },
     },
     {
       title: '使用次数',
       key: 'use_count',
       width: 100,
-      render: (_, record: Feature) => {
+      render: (_: any, record: Feature) => {
         const mapping = mappings.find(m => m.feature_type === record.feature_type);
         return mapping?.use_count || 0;
       },
@@ -107,7 +107,7 @@ const MappingPage: React.FC = () => {
       title: '最后使用时间',
       key: 'last_used_at',
       width: 180,
-      render: (_, record: Feature) => {
+      render: (_: any, record: Feature) => {
         const mapping = mappings.find(m => m.feature_type === record.feature_type);
         return mapping?.last_used_at ? new Date(mapping.last_used_at).toLocaleString() : '-';
       },
@@ -116,7 +116,7 @@ const MappingPage: React.FC = () => {
       title: '操作',
       key: 'action',
       width: 100,
-      render: (_, record: Feature) => (
+      render: (_: any, record: Feature) => (
         <Button type="link" onClick={() => handleEdit(record)}>
           配置
         </Button>
@@ -150,14 +150,14 @@ const MappingPage: React.FC = () => {
         >
           <Form.Item
             name="llm_model_id"
-            label="选择模型"
-            rules={[{ required: true, message: '请选择模型' }]}
+            label="选择渠道"
+            rules={[{ required: true, message: '请选择渠道' }]}
           >
             <Select
-              placeholder="请选择模型"
-              options={models.map(model => ({
-                label: model.name,
-                value: model.id,
+              placeholder="请选择渠道"
+              options={channels.map(channel => ({
+                label: `${channel.channel_name} (${channel.model})`,
+                value: channel.id,
               }))}
             />
           </Form.Item>

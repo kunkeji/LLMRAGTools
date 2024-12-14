@@ -27,10 +27,10 @@ class LLMFeatureMapping(BaseDBModel):
     
     llm_model_id: int = Column(
         Integer,
-        ForeignKey("llm_models.id", ondelete="CASCADE"),
+        ForeignKey("llm_channels.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
-        comment="LLM模型ID"
+        comment="渠道ID"
     )
     
     feature_type: str = Column(
@@ -66,8 +66,8 @@ class LLMFeatureMapping(BaseDBModel):
         lazy="select"
     )
     
-    llm_model = relationship(
-        "LLMModel",
+    channel = relationship(
+        "LLMChannel",
         back_populates="feature_mappings",
         lazy="select"
     )

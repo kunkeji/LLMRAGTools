@@ -11,17 +11,17 @@ from app.schemas.llm_feature_mapping import LLMFeatureMappingCreate, LLMFeatureM
 class CRUDFeatureMapping(CRUDBase[LLMFeatureMapping, LLMFeatureMappingCreate, LLMFeatureMappingUpdate]):
     """功能映射CRUD操作类"""
     
+    @staticmethod
     def get_by_feature_type(
-        self,
         db: Session,
         *,
         user_id: int,
         feature_type: FeatureType
     ) -> Optional[LLMFeatureMapping]:
         """根据功能类型获取映射"""
-        return db.query(self.model).filter(
-            self.model.user_id == user_id,
-            self.model.feature_type == feature_type
+        return db.query(LLMFeatureMapping).filter(
+            LLMFeatureMapping.user_id == user_id,
+            LLMFeatureMapping.feature_type == feature_type
         ).first()
     
     def get_multi_by_user(

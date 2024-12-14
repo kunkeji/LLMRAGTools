@@ -1,7 +1,7 @@
 """
 智谱AI SDK调用实现
 """
-from typing import Optional, Dict, Any, Generator
+from typing import Optional, Dict, Any, AsyncGenerator
 from zhipuai import ZhipuAI
 
 def generate(
@@ -41,7 +41,7 @@ def generate(
     
     return response.choices[0].message.content
 
-def generate_stream(
+async def generate_stream(
     prompt: str,
     message: str,
     api_key: str,
@@ -49,7 +49,7 @@ def generate_stream(
     temperature: float = 0.7,
     max_tokens: Optional[int] = None,
     **kwargs: Any
-) -> Generator[str, None, None]:
+) -> AsyncGenerator[str, None]:
     """
     流式生成文本
     
