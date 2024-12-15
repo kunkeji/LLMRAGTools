@@ -167,7 +167,7 @@ class CRUDEmailAccount(CRUDBase[EmailAccount, EmailAccountCreate, EmailAccountUp
             bool: 是否测试成功
         """
         # 测试SMTP连接
-        smtp_success, smtp_error = await test_smtp_connection(
+        smtplink = await test_smtp_connection(
             host=account.smtp_host,
             port=account.smtp_port,
             username=account.email_address,
@@ -175,14 +175,17 @@ class CRUDEmailAccount(CRUDBase[EmailAccount, EmailAccountCreate, EmailAccountUp
             use_ssl=account.use_ssl,
             use_tls=account.use_tls
         )
-        
+        print("SMTP测试结果==============================================\n",
+              smtplink.get("success"),"\n",
+              smtplink.get("error"),"\n",
+              smtplink.get("test_time"),"\n==============================================\n")
         # 更新SMTP测试结果
-        account.smtp_last_test_time = datetime.now()
-        account.smtp_test_result = smtp_success
-        account.smtp_test_error = smtp_error if not smtp_success else None
+        account.smtp_last_test_time = smtplink.get("test_time")
+        account.smtp_test_result = smtplink.get("success")
+        account.smtp_test_error = smtplink.get("error") if not smtplink.get("success") else None
         
         # 测试IMAP连接
-        imap_success, imap_error = await test_imap_connection(
+        imap_link = await test_imap_connection(
             host=account.imap_host,
             port=account.imap_port,
             username=account.email_address,
@@ -191,9 +194,9 @@ class CRUDEmailAccount(CRUDBase[EmailAccount, EmailAccountCreate, EmailAccountUp
         )
         
         # 更新IMAP测试结果
-        account.imap_last_test_time = datetime.now()
-        account.imap_test_result = imap_success
-        account.imap_test_error = imap_error if not imap_success else None
+        account.imap_last_test_time = imap_link.get("test_time")
+        account.imap_test_result = imap_link.get("success")
+        account.imap_test_error = imap_link.get("error") if not imap_link.get("success") else None
         
         # 保存测试结果
         db.add(account)
@@ -201,7 +204,7 @@ class CRUDEmailAccount(CRUDBase[EmailAccount, EmailAccountCreate, EmailAccountUp
         db.refresh(account)
         
         # 返回总体测试结果
-        return smtp_success and imap_success
+        return smtplink.get("success") and imap_link.get("success")
     
     def sync_emails(
         self,

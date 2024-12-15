@@ -21,7 +21,8 @@ from app.utils.email.parser import (
     parse_email_address,
     get_email_body,
     get_attachment_info,
-    parse_email_addresses
+    parse_email_addresses,
+    decode_mime_words
 )
 
 logger = logging.getLogger(__name__)
@@ -208,7 +209,7 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                                     obj_in=EmailCreate(
                                         account_id=account_id,
                                         message_id=message_id,
-                                        subject=subject,
+                                        subject=decode_mime_words(subject),
                                         from_address=from_address,
                                         from_name=from_name,
                                         to_address=to_list,
