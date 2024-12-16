@@ -25,7 +25,7 @@ const EmailAccountList: React.FC = () => {
   const [testingId, setTestingId] = useState<number>();
   const [syncingId, setSyncingId] = useState<number>();
 
-  // 加载账���列表
+  // 加载账�����列表
   const loadAccounts = async () => {
     try {
       setLoading(true);
@@ -77,7 +77,7 @@ const EmailAccountList: React.FC = () => {
     }
   };
 
-  // 同步邮件��户
+  // 同步��件��户
   const handleSync = async (id: number) => {
     try {
       setSyncingId(id);
@@ -117,19 +117,24 @@ const EmailAccountList: React.FC = () => {
     {
       title: '邮箱账户',
       key: 'account',
-      width: '30%',
+      width: '25%',
       render: (_, record) => (
-        <div>
-          <div style={{ fontSize: '14px', marginBottom: 4 }}>
+        <div className={styles.accountCell}>
+          <div className={styles.accountMain}>
             <a onClick={() => history.push(`/email/list/${record.id}`)}>{record.email_address}</a>
+            {record.total_emails > 0 && (
+              <Tag color="blue" className={styles.emailCount}>
+                {record.total_emails}封邮件
+              </Tag>
+            )}
           </div>
-          <div style={{ fontSize: '12px', color: '#666' }}>
+          <div className={styles.accountStatus}>
             <Tag color={syncStatusConfig[record.sync_status].color}>
               {record.sync_status === 'SYNCING' && <SyncOutlined spin />}
               {syncStatusConfig[record.sync_status].text}
             </Tag>
             {record.last_sync_time && (
-              <span style={{ marginLeft: 8 }}>
+              <span className={styles.lastSync}>
                 最后同步: {new Date(record.last_sync_time).toLocaleString()}
               </span>
             )}
@@ -140,9 +145,9 @@ const EmailAccountList: React.FC = () => {
     {
       title: 'SMTP服务器',
       key: 'smtp',
-      width: '30%',
+      width: '20%',
       render: (_, record) => (
-        <div>
+        <div className={styles.serverCell}>
           <div>{record.smtp_host}:{record.smtp_port}</div>
           {renderServerStatus(record, 'smtp')}
         </div>
@@ -151,22 +156,21 @@ const EmailAccountList: React.FC = () => {
     {
       title: 'IMAP服务器',
       key: 'imap',
-      width: '30%',
+      width: '20%',
       render: (_, record) => (
-        <div>
+        <div className={styles.serverCell}>
           <div>{record.imap_host}:{record.imap_port}</div>
           {renderServerStatus(record, 'imap')}
         </div>
       ),
     },
     {
-      title: '操作',
-      key: 'action',
-      width: '10%',
+      title: '同步状态',
+      key: 'sync',
+      width: '15%',
       render: (_, record) => (
-        <Space direction="vertical" size="small">
+        <Space>
           <Button
-            type="link"
             size="small"
             onClick={() => handleSync(record.id)}
             loading={syncingId === record.id}
@@ -176,13 +180,21 @@ const EmailAccountList: React.FC = () => {
             {record.sync_status === 'RUNNING' ? '同步中' : '同步'}
           </Button>
           <Button
-            type="link"
             size="small"
             onClick={() => handleTest(record.id)}
             loading={testingId === record.id}
           >
             测试连接
           </Button>
+        </Space>
+      ),
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: '15%',
+      render: (_, record) => (
+        <Space>
           <Button
             type="link"
             size="small"

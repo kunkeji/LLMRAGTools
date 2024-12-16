@@ -205,12 +205,14 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                                     db,
                                     db_obj=existing_email,
                                     obj_in={
-                                        "subject": subject,
+                                        "subject": decode_mime_words(subject),
                                         "content": content,
                                         "content_type": content_type
                                     }
                                 )
                                 updated_emails += 1
+                                # 创建标签同步任务
+                                create_tag_task(message_id);
                             else:
                                 # 创建新邮件
                                 email_obj = crud_email.create(
@@ -245,6 +247,8 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                                                 db.add(EmailAttachment(**attachment.dict()))
                                 
                                 new_emails += 1
+                                # 创建标签同步任务
+                                create_tag_task(message_id);
                             
                             # 定期提交事务和更新同步状态
                             if (new_emails + updated_emails) % 10 == 0:
@@ -256,8 +260,7 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                                     updated_emails=updated_emails
                                 )
                             
-                            # 创建标签同步任务
-                            create_tag_task(message_id);
+                            
                         except Exception as e:
                             logger.error(f"处理邮件失败: {str(e)}")
                             continue

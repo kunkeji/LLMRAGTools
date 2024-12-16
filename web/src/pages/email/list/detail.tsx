@@ -170,22 +170,19 @@ const EmailDetail: React.FC = () => {
               {email.tags && email.tags.length > 0 && (
                 <Descriptions.Item label="标签">
                   <Space>
-                    {email.tags.map(tagId => {
-                      const tag = tags.find(t => t.id === tagId);
-                      return tag && (
-                        <Tag
-                          key={tag.id}
-                          color={tag.color}
-                          closable
-                          onClose={(e) => {
-                            e.preventDefault();
-                            handleEmailTag(tag.id, true);
-                          }}
-                        >
-                          {tag.name}
-                        </Tag>
-                      );
-                    })}
+                    {email.tags.map(tag => (
+                      <Tag
+                        key={tag.id}
+                        color={tag.color}
+                        closable
+                        onClose={(e) => {
+                          e.preventDefault();
+                          handleEmailTag(tag.id, true);
+                        }}
+                      >
+                        {tag.name}
+                      </Tag>
+                    ))}
                   </Space>
                 </Descriptions.Item>
               )}
