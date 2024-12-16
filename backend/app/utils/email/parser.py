@@ -6,6 +6,7 @@ from typing import Tuple, List, Optional
 import pytz
 import logging
 from dateutil import parser
+import re
 
 from app.schemas.email import EmailAttachmentCreate
 
@@ -90,10 +91,10 @@ def parse_email_date(date_str: str) -> datetime:
         # 尝试解析 RFC 2822 格式 (邮件标准格式)
         try:
             dt = parsedate_to_datetime(date_str)
-            if dt.tzinfo:
-                # 转换为 UTC 时间并移除时区信息
-                return dt.astimezone(pytz.UTC).replace(tzinfo=None)
-            return dt
+            # if dt.tzinfo:
+            #     # 转换为 UTC 时间并移除时区信息
+            #     return dt.astimezone(pytz.UTC).replace(tzinfo=None)
+            return dt.replace(tzinfo=None)
         except (TypeError, ValueError):
             pass
             
@@ -107,11 +108,26 @@ def parse_email_date(date_str: str) -> datetime:
         # 尝试其他 ISO 8601 变体
         try:
             dt = parser.isoparse(date_str)
+            # if dt.tzinfo:
+            #     # 转换为 UTC 时间并移除时区信息
+            #     return dt.astimezone(pytz.UTC).replace(tzinfo=None)
+            return dt.replace(tzinfo=None)
+        except (ValueError, TypeError):
+            pass
+        
+        # 尝试解析新添加的格式
+        try:
+            date_pattern = r";\s*(?P<date>[\w, :+\-]+)$"
+            match = re.search(date_pattern, date_str)
+            if match:
+                date_str = match.group('date').strip()
+            dt = datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S %z')
             if dt.tzinfo:
                 # 转换为 UTC 时间并移除时区信息
-                return dt.astimezone(pytz.UTC).replace(tzinfo=None)
+                return dt.replace(tzinfo=None)
             return dt
-        except (ValueError, TypeError):
+            
+        except ValueError:
             pass
         
         # 尝试其他常见格式
@@ -130,11 +146,11 @@ def parse_email_date(date_str: str) -> datetime:
                 
         # 如果所有格式都失败,记录警告并返回当前时间
         logger.warning(f"无法解析日期格式: {date_str}, 使用当前时间")
-        return datetime.utcnow()
+        return datetime.now()
         
     except Exception as e:
         logger.error(f"解析日期出错: {str(e)}, date_str: {date_str}")
-        return datetime.utcnow()
+        return datetime.now()
 
 def parse_email_addresses(addresses: List[str]) -> List[str]:
     """解析邮件地址列表"""

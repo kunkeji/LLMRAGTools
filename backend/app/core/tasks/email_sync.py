@@ -188,6 +188,9 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                             
                             # 解析日期
                             date_str = msg.get('Date')
+                            # 如果没获取到时间可能是自己发送给自己的邮件
+                            if not date_str:
+                                date_str = msg.get('Received')
                             date = parse_email_date(date_str) if date_str else datetime.now()
                             
                             # 解析收件人信息
