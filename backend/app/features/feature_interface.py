@@ -104,22 +104,10 @@ class FeatureInterface:
                     content=message
                 )
                 
-            case FeatureType.CODE_COMMENT:
+            case FeatureType.LABEL_CLASSIFICATION:
                 return template.format(
-                    task="注释",
-                    code=message
-                )
-                
-            case FeatureType.CODE_REVIEW:
-                return template.format(
-                    task="审查",
-                    code=message
-                )
-                
-            case FeatureType.CODE_OPTIMIZE:
-                return template.format(
-                    task="优化",
-                    code=message
+                    task="分类",
+                    content=message
                 )
                 
             case _:

@@ -12,9 +12,7 @@ class FeatureType(str, Enum):
     DOCUMENT_IMPROVE = "DOCUMENT_IMPROVE"  # 文档改进
     DOCUMENT_SUMMARY = "DOCUMENT_SUMMARY"  # 文档总结
     DOCUMENT_TRANSLATE = "DOCUMENT_TRANSLATE"  # 文档翻译
-    CODE_COMMENT = "CODE_COMMENT"      # 代码注释
-    CODE_REVIEW = "CODE_REVIEW"        # 代码审查
-    CODE_OPTIMIZE = "CODE_OPTIMIZE"    # 代码优化
+    LABEL_CLASSIFICATION = "LABEL_CLASSIFICATION"  # 标签分类
 
 class LLMFeature(BaseDBModel):
     """LLM功能定义"""

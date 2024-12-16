@@ -24,16 +24,19 @@ from app.utils.email.parser import (
     parse_email_addresses,
     decode_mime_words
 )
+from app.core.tasks.email_tag import create_tag_task
 
 logger = logging.getLogger(__name__)
 def create_sync_task(account_id: int) -> Task:
-    """创建邮件同步任务"""
     try:
+        # 使用SessionLocal上下文管理器进行数据库会话管理
         with SessionLocal() as db:
+            # 查询邮件账户
             account = db.query(EmailAccount).filter(
                 EmailAccount.id == account_id,
                 EmailAccount.deleted_at.is_(None)
             ).first()
+            # 如果账户不存在，则抛出异常
             if not account:
                 raise ValueError(f"邮件账户不存在: {account_id}")
             
@@ -56,6 +59,7 @@ def create_sync_task(account_id: int) -> Task:
                 db.refresh(existing_task)
                 return existing_task
             
+            # 如果已存在任务，则记录警告日志并返回现有任务
             if existing_task:
                 logger_instance.warning(
                     message="已存在正在执行的同步任务",
@@ -81,12 +85,17 @@ def create_sync_task(account_id: int) -> Task:
                 timeout=3600
             )
             
+            # 将新任务添加到数据库
             db.add(task)
+            # 更新账户同步状态为"PENDING"
             account.sync_status = "PENDING"
             
+            # 提交数据库会话
             db.commit()
+            # 刷新任务对象以反映数据库中的最新状态
             db.refresh(task)
             
+            # 记录信息日志
             logger_instance.info(
                 message="邮件同步任务创建成功",
                 module="tasks",
@@ -98,9 +107,11 @@ def create_sync_task(account_id: int) -> Task:
                 }
             )
             
+            # 返回新创建的任务
             return task
             
     except Exception as e:
+        # 记录错误日志
         logger_instance.error(
             message=f"创建邮件同步任务失败: {str(e)}",
             module="tasks",
@@ -172,21 +183,19 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                         try:
                             # 解析邮件基本信息
                             message_id = msg.get('Message-ID', '')
-                            subject = msg.get('Subject', '')
+                            subject = decode_mime_words(msg.get('Subject', ''))
                             from_name, from_address = parse_email_address(msg.get('From', ''))
                             
                             # 解析日期
                             date_str = msg.get('Date')
-                            date = parse_email_date(date_str) if date_str else datetime.utcnow()
+                            date = parse_email_date(date_str) if date_str else datetime.now()
                             
                             # 解析收件人信息
                             to_list = parse_email_addresses(msg.get_all('To', []))
                             cc_list = parse_email_addresses(msg.get_all('Cc', []) or [])
                             bcc_list = parse_email_addresses(msg.get_all('Bcc', []) or [])
-                            
                             # 获取邮件内容
                             content, content_type = get_email_body(msg)
-                            
                             # 检查是否已存在该邮件
                             existing_email = crud_email.get_by_message_id(db, account_id=account_id, message_id=message_id)
                             
@@ -246,7 +255,9 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                                     new_emails=new_emails,
                                     updated_emails=updated_emails
                                 )
-                                
+                            
+                            # 创建标签同步任务
+                            create_tag_task(message_id);
                         except Exception as e:
                             logger.error(f"处理邮件失败: {str(e)}")
                             continue
@@ -262,7 +273,6 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                             updated_emails=updated_emails
                         )
                     )
-                    
                     # 更新账户同步状态
                     account.last_sync_time = datetime.now()
                     account.sync_status = "COMPLETED"

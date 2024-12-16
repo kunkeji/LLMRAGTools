@@ -30,7 +30,7 @@ async def get_features(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """��取所有可用的LLM功能列表"""
+    """获取所有可用的LLM功能列表"""
     features = db.query(LLMFeature).all()
     return response_success(data=features)
 

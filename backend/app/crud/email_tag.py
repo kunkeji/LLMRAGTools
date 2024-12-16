@@ -102,12 +102,7 @@ class CRUDEmailTag(CRUDBase[EmailTag, EmailTagCreate, EmailTagUpdate]):
         db.refresh(db_obj)
         return db_obj
     
-    def get_tag_stats(
-        self,
-        db: Session,
-        *,
-        user_id: Optional[int] = None
-    ) -> Dict[int, int]:
+    def get_tag_stats(self,db: Session,*,user_id: Optional[int] = None) -> Dict[int, int]:
         """获取标签使用统计"""
         query = db.query(
             EmailTagRelation.tag_id,
@@ -128,18 +123,10 @@ class CRUDEmailTag(CRUDBase[EmailTag, EmailTagCreate, EmailTagUpdate]):
             for row in query.all()
         }
     
-    def add_email_tag(
-        self,
-        db: Session,
-        *,
-        email_id: int,
-        tag_id: int
-    ) -> EmailTagRelation:
+    def add_email_tag(self,db: Session,*,email_id: int,tag_id: int) -> EmailTagRelation:
         """为邮件添加标签"""
-        db_obj = EmailTagRelation(
-            email_id=email_id,
-            tag_id=tag_id
-        )
+        self.remove_email_tag(db, email_id=email_id)
+        db_obj = EmailTagRelation(email_id=email_id,tag_id=tag_id)
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
@@ -150,15 +137,20 @@ class CRUDEmailTag(CRUDBase[EmailTag, EmailTagCreate, EmailTagUpdate]):
         db: Session,
         *,
         email_id: int,
-        tag_id: int
+        tag_id: int = None
     ) -> None:
         """移除邮件标签"""
-        db.query(EmailTagRelation).filter(
-            and_(
-                EmailTagRelation.email_id == email_id,
-                EmailTagRelation.tag_id == tag_id
-            )
-        ).delete()
+        if tag_id:
+            db.query(EmailTagRelation).filter(
+                and_(
+                    EmailTagRelation.email_id == email_id,
+                    EmailTagRelation.tag_id == tag_id
+                )
+            ).delete()
+        else:
+            db.query(EmailTagRelation).filter(
+                EmailTagRelation.email_id == email_id
+            ).delete()
         db.commit()
 
 crud_email_tag = CRUDEmailTag(EmailTag) 

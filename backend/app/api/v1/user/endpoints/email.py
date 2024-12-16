@@ -247,6 +247,7 @@ def get_emails(
     
     # 将 SQLAlchemy 模型转换为 Pydantic 模型
     from app.schemas.email import Email as EmailSchema
+    
     email_list = [EmailSchema.model_validate(email) for email in emails]
     
     return response_success(data={
