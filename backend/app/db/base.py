@@ -14,5 +14,7 @@ from app.models import (
     LLMFeatureMapping,
     Email,
     EmailAttachment,
-    EmailSyncLog
+    EmailSyncLog,
+    EmailTag,
+    EmailTagRelation
 )

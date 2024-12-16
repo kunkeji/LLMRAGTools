@@ -9,6 +9,7 @@ from app.api.v1.user.endpoints import (
     llm,
     channel,
     email,
+    email_tag,
     document,
     feature_mapping
 )
@@ -50,11 +51,18 @@ router.include_router(
     tags=["渠道管理"]
 )
 
-# 邮箱提供商管理路由
+# 邮箱管理路由
 router.include_router(
     email.router,
     prefix="/email",
-    tags=["admin-email"]
+    tags=["邮箱管理"]
+)
+
+# 邮件标签路由
+router.include_router(
+    email_tag.router,
+    prefix="/email",
+    tags=["邮箱管理"]
 )
 
 # 文档管理路由

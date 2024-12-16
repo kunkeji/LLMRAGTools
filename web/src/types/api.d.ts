@@ -212,6 +212,7 @@ declare namespace API {
     created_at: string;
     updated_at: string;
     attachments: EmailAttachment[];
+    tags?: number[];
   }
 
   // 邮件附件类型

@@ -112,6 +112,11 @@ export default defineConfig({
           hideInMenu: true,
         },
         {
+          path: '/email/tag',
+          name: '标签管理',
+          component: './email/tag',
+        },
+        {
           path: '/email/list/:accountId',
           name: '邮件列表',
           component: './email/list',

@@ -92,4 +92,54 @@ CREATE TABLE `email_sync_logs` (
   CONSTRAINT `fk_sync_logs_account_id` FOREIGN KEY (`account_id`) REFERENCES `email_accounts` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='邮件同步日志表';
 
+-- ----------------------------
+-- Table structure for email_tags
+-- ----------------------------
+DROP TABLE IF EXISTS `email_tags`;
+CREATE TABLE `email_tags` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `user_id` int DEFAULT NULL COMMENT '用户ID（为空表示系统默认标签）',
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '标签名称',
+  `color` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#1890ff' COMMENT '标签颜色',
+  `description` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '标签描述',
+  `sort_order` int NOT NULL DEFAULT 0 COMMENT '排序顺序',
+  `is_system` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否系统标签',
+  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_is_system` (`is_system`),
+  CONSTRAINT `fk_tags_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='邮件标签表';
+
+-- ----------------------------
+-- Table structure for email_tag_relations
+-- ----------------------------
+DROP TABLE IF EXISTS `email_tag_relations`;
+CREATE TABLE `email_tag_relations` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `email_id` int NOT NULL COMMENT '邮件ID',
+  `tag_id` int NOT NULL COMMENT '标签ID',
+  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_email_tag` (`email_id`, `tag_id`),
+  KEY `idx_email_id` (`email_id`),
+  KEY `idx_tag_id` (`tag_id`),
+  CONSTRAINT `fk_tag_relations_email_id` FOREIGN KEY (`email_id`) REFERENCES `emails` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_tag_relations_tag_id` FOREIGN KEY (`tag_id`) REFERENCES `email_tags` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='邮件标签关联表';
+
+-- ----------------------------
+-- Initialize default tags
+-- ----------------------------
+INSERT INTO `email_tags` (`name`, `color`, `description`, `sort_order`, `is_system`) VALUES
+('广告', '#f50', '广告邮件', 1, 1),
+('验证码', '#2db7f5', '验证码邮件', 2, 1),
+('通知', '#87d068', '通知类邮件', 3, 1),
+('账单', '#108ee9', '账单类邮件', 4, 1),
+('提醒', '#faad14', '提醒类邮件', 5, 1);
+
 SET FOREIGN_KEY_CHECKS = 1; 

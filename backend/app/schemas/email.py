@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr
+from app.schemas.email_tag import EmailTag
 
 class EmailAttachmentBase(BaseModel):
     """邮件附件基础模型"""
@@ -43,10 +44,12 @@ class EmailBase(BaseModel):
     date: datetime
     content_type: str
     content: Optional[str] = None
+    raw_content: Optional[str] = None
     has_attachments: bool = False
     size: int = 0
     is_read: bool = False
     is_flagged: bool = False
+    is_deleted: bool = False
     folder: str = "INBOX"
     importance: int = 0
     in_reply_to: Optional[str] = None
@@ -55,12 +58,12 @@ class EmailBase(BaseModel):
 class EmailCreate(EmailBase):
     """创建邮件模型"""
     account_id: int
-    raw_content: Optional[str] = None
 
 class EmailUpdate(BaseModel):
     """更新邮件模型"""
     is_read: Optional[bool] = None
     is_flagged: Optional[bool] = None
+    is_deleted: Optional[bool] = None
     folder: Optional[str] = None
     importance: Optional[int] = None
 
@@ -71,6 +74,7 @@ class Email(EmailBase):
     created_at: datetime
     updated_at: datetime
     attachments: List[EmailAttachment] = []
+    tags: List[EmailTag] = []
 
     class Config:
         from_attributes = True

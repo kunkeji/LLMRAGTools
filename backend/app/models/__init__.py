@@ -13,6 +13,7 @@ from app.models.task import Task
 from app.models.llm_feature import LLMFeature
 from app.models.llm_feature_mapping import LLMFeatureMapping
 from app.models.email import Email, EmailAttachment, EmailSyncLog
+from app.models.email_tag import EmailTag,EmailTagRelation
 
 # 导出所有模型
 __all__ = [
@@ -30,4 +31,6 @@ __all__ = [
     "Email",
     "EmailAttachment",
     "EmailSyncLog"
+    "EmailTag",
+    "EmailTagRelation"
 ]

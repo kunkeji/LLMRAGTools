@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Descriptions, Button, Space, message, Tag, Typography, Divider } from 'antd';
-import { ArrowLeftOutlined, StarOutlined, StarFilled, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
+import { Card, Descriptions, Button, Space, message, Tag, Typography, Divider, Dropdown, Menu } from 'antd';
+import { ArrowLeftOutlined, StarOutlined, StarFilled, DeleteOutlined, DownloadOutlined, TagOutlined } from '@ant-design/icons';
 import { useParams, history } from '@umijs/max';
 import { emailApi } from '@/services/api/email';
+import type { EmailTag } from '@/services/api/email';
 import styles from './detail.less';
 
 const { Title } = Typography;
@@ -11,16 +12,21 @@ const EmailDetail: React.FC = () => {
   const { accountId, emailId } = useParams<{ accountId: string; emailId: string }>();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState<API.Email>();
+  const [tags, setTags] = useState<EmailTag[]>([]);
 
-  // 加载邮件详情
-  const loadEmail = async () => {
+  // 加载邮件详情和标签
+  const loadData = async () => {
     if (!accountId || !emailId) return;
     try {
       setLoading(true);
-      const data = await emailApi.getEmail(parseInt(accountId), parseInt(emailId));
-      setEmail(data);
+      const [emailData, tagsData] = await Promise.all([
+        emailApi.getEmail(parseInt(accountId), parseInt(emailId)),
+        emailApi.getTags(),
+      ]);
+      setEmail(emailData);
+      setTags(tagsData);
       // 标记为已读
-      if (!data.is_read) {
+      if (!emailData.is_read) {
         await emailApi.markEmailRead(parseInt(accountId), parseInt(emailId), true);
       }
     } catch (error: any) {
@@ -31,7 +37,7 @@ const EmailDetail: React.FC = () => {
   };
 
   useEffect(() => {
-    loadEmail();
+    loadData();
   }, [accountId, emailId]);
 
   // 标记重要/取消重要
@@ -40,7 +46,7 @@ const EmailDetail: React.FC = () => {
     try {
       await emailApi.markEmailFlagged(parseInt(accountId), parseInt(emailId), isFlagged);
       message.success(isFlagged ? '已标记为重要' : '已取消重要标记');
-      loadEmail();
+      loadData();
     } catch (error: any) {
       message.error(error.message || '操作失败');
     }
@@ -57,6 +63,40 @@ const EmailDetail: React.FC = () => {
       message.error(error.message || '删除失败');
     }
   };
+
+  // 处理标签
+  const handleEmailTag = async (tagId: number, hasTag: boolean) => {
+    if (!accountId || !emailId) return;
+    try {
+      if (hasTag) {
+        await emailApi.removeEmailTag(parseInt(emailId), tagId);
+        message.success('标签已移除');
+      } else {
+        await emailApi.addEmailTag(parseInt(emailId), tagId);
+        message.success('标签已添加');
+      }
+      loadData();
+    } catch (error: any) {
+      message.error(error.message || '操作失败');
+    }
+  };
+
+  // 标签菜单
+  const tagMenu = (
+    <Menu>
+      {tags.map(tag => (
+        <Menu.Item
+          key={tag.id}
+          onClick={() => handleEmailTag(tag.id, email?.tags?.includes(tag.id) || false)}
+        >
+          <Space>
+            <Tag color={tag.color}>{tag.name}</Tag>
+            {email?.tags?.includes(tag.id) && <span style={{ color: '#52c41a' }}>✓</span>}
+          </Space>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
 
   // 下载附件
   const handleDownloadAttachment = (attachment: API.EmailAttachment) => {
@@ -81,6 +121,12 @@ const EmailDetail: React.FC = () => {
                 <Title level={4}>{email.subject}</Title>
               </Space>
               <Space>
+                <Dropdown overlay={tagMenu} trigger={['click']}>
+                  <Button
+                    type="text"
+                    icon={<TagOutlined />}
+                  />
+                </Dropdown>
                 <Button
                   type="text"
                   icon={email.is_flagged ? <StarFilled style={{ color: '#faad14' }} /> : <StarOutlined />}
@@ -121,6 +167,28 @@ const EmailDetail: React.FC = () => {
               <Descriptions.Item label="时间">
                 {new Date(email.date).toLocaleString()}
               </Descriptions.Item>
+              {email.tags && email.tags.length > 0 && (
+                <Descriptions.Item label="标签">
+                  <Space>
+                    {email.tags.map(tagId => {
+                      const tag = tags.find(t => t.id === tagId);
+                      return tag && (
+                        <Tag
+                          key={tag.id}
+                          color={tag.color}
+                          closable
+                          onClose={(e) => {
+                            e.preventDefault();
+                            handleEmailTag(tag.id, true);
+                          }}
+                        >
+                          {tag.name}
+                        </Tag>
+                      );
+                    })}
+                  </Space>
+                </Descriptions.Item>
+              )}
             </Descriptions>
 
             {email.has_attachments && email.attachments.length > 0 && (

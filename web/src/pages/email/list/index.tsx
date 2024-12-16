@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Button, Space, message, Tag, Input, Select, Modal } from 'antd';
-import { SearchOutlined, StarOutlined, StarFilled, DeleteOutlined, FolderOutlined } from '@ant-design/icons';
+import { Card, Table, Button, Space, message, Tag, Input, Select, Modal, Dropdown, Menu, Popover, ColorPicker } from 'antd';
+import { SearchOutlined, StarOutlined, StarFilled, DeleteOutlined, FolderOutlined, TagOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons';
 import { useParams, history } from '@umijs/max';
 import { emailApi } from '@/services/api/email';
 import type { ColumnsType } from 'antd/es/table';
+import type { EmailTag } from '@/services/api/email';
 import styles from './index.less';
 
 const { confirm } = Modal;
@@ -21,6 +22,11 @@ const EmailList: React.FC = () => {
     pageSize: 10,
     total: 0,
   });
+  const [tags, setTags] = useState<EmailTag[]>([]);
+  const [tagModalVisible, setTagModalVisible] = useState(false);
+  const [editingTag, setEditingTag] = useState<EmailTag | null>(null);
+  const [tagName, setTagName] = useState('');
+  const [tagColor, setTagColor] = useState('#1890ff');
 
   // 加载邮件列表
   const loadEmails = async (page = pagination.current, pageSize = pagination.pageSize) => {
@@ -85,7 +91,7 @@ const EmailList: React.FC = () => {
     if (!accountId) return;
     try {
       await emailApi.moveEmail(parseInt(accountId), emailId, targetFolder);
-      message.success('移���成功');
+      message.success('移动成功');
       loadEmails();
     } catch (error: any) {
       message.error(error.message || '移动失败');
@@ -126,6 +132,143 @@ const EmailList: React.FC = () => {
     }
   };
 
+  // 加载标签列表
+  const loadTags = async () => {
+    try {
+      const data = await emailApi.getTags();
+      setTags(data);
+    } catch (error: any) {
+      message.error(error.message || '加载标签失败');
+    }
+  };
+
+  useEffect(() => {
+    loadTags();
+  }, []);
+
+  // 处理创建/编辑标签
+  const handleSaveTag = async () => {
+    if (!tagName.trim()) {
+      message.error('请输入标签名称');
+      return;
+    }
+
+    try {
+      if (editingTag) {
+        await emailApi.updateTag(editingTag.id, {
+          name: tagName,
+          color: tagColor,
+        });
+        message.success('标签更新成功');
+      } else {
+        await emailApi.createTag({
+          name: tagName,
+          color: tagColor,
+        });
+        message.success('标签创建成功');
+      }
+      setTagModalVisible(false);
+      setEditingTag(null);
+      setTagName('');
+      setTagColor('#1890ff');
+      loadTags();
+    } catch (error: any) {
+      message.error(error.message || '操作失败');
+    }
+  };
+
+  // 处理删除标签
+  const handleDeleteTag = (tag: EmailTag) => {
+    confirm({
+      title: '确认删除',
+      content: '确定要删除这个标签吗？删除后不可恢复。',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          await emailApi.deleteTag(tag.id);
+          message.success('删除成功');
+          loadTags();
+        } catch (error: any) {
+          message.error(error.message || '删除失败');
+        }
+      },
+    });
+  };
+
+  // 处理为邮件添加/移除标签
+  const handleEmailTag = async (emailId: number, tagId: number, hasTag: boolean) => {
+    try {
+      if (hasTag) {
+        await emailApi.removeEmailTag(emailId, tagId);
+        message.success('标签已移除');
+      } else {
+        await emailApi.addEmailTag(emailId, tagId);
+        message.success('标签已添加');
+      }
+      loadEmails();
+    } catch (error: any) {
+      message.error(error.message || '操作失败');
+    }
+  };
+
+  // 标签管理菜单
+  const tagMenu = (
+    <Menu>
+      <Menu.Item key="create" onClick={() => setTagModalVisible(true)}>
+        <PlusOutlined /> 创建标签
+      </Menu.Item>
+      <Menu.Divider />
+      {tags.map(tag => (
+        <Menu.Item key={tag.id}>
+          <Space>
+            <Tag color={tag.color}>{tag.name}</Tag>
+            <Button
+              type="text"
+              size="small"
+              icon={<EditOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditingTag(tag);
+                setTagName(tag.name);
+                setTagColor(tag.color);
+                setTagModalVisible(true);
+              }}
+            />
+            <Button
+              type="text"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteTag(tag);
+              }}
+            />
+          </Space>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+
+  // 邮件标签菜单
+  const emailTagMenu = (email: API.Email) => (
+    <Menu>
+      {tags.map(tag => (
+        <Menu.Item
+          key={tag.id}
+          onClick={() => handleEmailTag(email.id, tag.id, email.tags?.includes(tag.id))}
+        >
+          <Space>
+            <Tag color={tag.color}>{tag.name}</Tag>
+            {email.tags?.includes(tag.id) && <span style={{ color: '#52c41a' }}>✓</span>}
+          </Space>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+
+  // 更新表格列配置
   const columns: ColumnsType<API.Email> = [
     {
       title: '发件人',
@@ -147,6 +290,12 @@ const EmailList: React.FC = () => {
       render: (text, record) => (
         <div>
           {!record.is_read && <Tag color="blue">未读</Tag>}
+          {record.tags?.map(tagId => {
+            const tag = tags.find(t => t.id === tagId);
+            return tag && (
+              <Tag key={tag.id} color={tag.color}>{tag.name}</Tag>
+            );
+          })}
           {text}
         </div>
       ),
@@ -164,6 +313,13 @@ const EmailList: React.FC = () => {
       width: 180,
       render: (_, record) => (
         <Space>
+          <Dropdown overlay={emailTagMenu(record)} trigger={['click']}>
+            <Button
+              type="text"
+              icon={<TagOutlined />}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </Dropdown>
           <Button
             type="text"
             icon={record.is_flagged ? <StarFilled style={{ color: '#faad14' }} /> : <StarOutlined />}
@@ -233,6 +389,9 @@ const EmailList: React.FC = () => {
               <Option value={true}>已读</Option>
               <Option value={false}>未读</Option>
             </Select>
+            <Dropdown overlay={tagMenu} trigger={['click']}>
+              <Button icon={<TagOutlined />}>标签管理</Button>
+            </Dropdown>
           </Space>
         </div>
 
@@ -254,6 +413,33 @@ const EmailList: React.FC = () => {
           })}
         />
       </Card>
+
+      <Modal
+        title={editingTag ? '编辑标签' : '创建标签'}
+        open={tagModalVisible}
+        onOk={handleSaveTag}
+        onCancel={() => {
+          setTagModalVisible(false);
+          setEditingTag(null);
+          setTagName('');
+          setTagColor('#1890ff');
+        }}
+      >
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Input
+            placeholder="请输入标签名称"
+            value={tagName}
+            onChange={(e) => setTagName(e.target.value)}
+          />
+          <div>
+            <span style={{ marginRight: 8 }}>标签颜色：</span>
+            <ColorPicker
+              value={tagColor}
+              onChange={(color) => setTagColor(color.toHexString())}
+            />
+          </div>
+        </Space>
+      </Modal>
     </div>
   );
 };

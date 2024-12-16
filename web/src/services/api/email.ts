@@ -12,7 +12,16 @@ export interface CreateEmailAccountParams {
   use_tls?: boolean;
 }
 
-export interface UpdateEmailAccountParams extends Partial<CreateEmailAccountParams> {}
+export interface UpdateEmailAccountParams {
+  email_address?: string;
+  auth_token?: string;
+  smtp_host?: string;
+  smtp_port?: number;
+  imap_host?: string;
+  imap_port?: number;
+  use_ssl?: boolean;
+  use_tls?: boolean;
+}
 
 export interface GetEmailsParams {
   folder?: string;
@@ -29,6 +38,28 @@ export interface UpdateEmailParams {
   is_flagged?: boolean;
   folder?: string;
   importance?: number;
+}
+
+// 标签相关接口
+export interface EmailTag {
+  id: number;
+  name: string;
+  color: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateTagParams {
+  name: string;
+  color: string;
+  description?: string;
+}
+
+export interface UpdateTagParams {
+  name?: string;
+  color?: string;
+  description?: string;
 }
 
 export const emailApi = {
@@ -142,6 +173,50 @@ export const emailApi = {
     return apiRequest<API.Email>(`${API_URLS.EMAIL.ACCOUNTS}/${accountId}/emails/${emailId}/move`, {
       method: 'POST',
       params: { folder },
+    });
+  },
+
+  // 获取所有标签
+  getTags: () => {
+    return apiRequest<EmailTag[]>('/api/user/email/tags', {
+      method: 'GET',
+    });
+  },
+
+  // 创建标签
+  createTag: (params: CreateTagParams) => {
+    return apiRequest<EmailTag>('/api/user/email/tags', {
+      method: 'POST',
+      data: params,
+    });
+  },
+
+  // 更新标签
+  updateTag: (tagId: number, params: UpdateTagParams) => {
+    return apiRequest<EmailTag>(`/api/user/email/tags/${tagId}`, {
+      method: 'PUT',
+      data: params,
+    });
+  },
+
+  // 删除标签
+  deleteTag: (tagId: number) => {
+    return apiRequest<void>(`/api/user/email/tags/${tagId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // 为邮件添加标签
+  addEmailTag: (emailId: number, tagId: number) => {
+    return apiRequest<void>(`/api/user/email/emails/${emailId}/tags/${tagId}`, {
+      method: 'POST',
+    });
+  },
+
+  // 移除邮件标签
+  removeEmailTag: (emailId: number, tagId: number) => {
+    return apiRequest<void>(`/api/user/email/emails/${emailId}/tags/${tagId}`, {
+      method: 'DELETE',
     });
   },
 }; 

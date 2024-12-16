@@ -38,6 +38,15 @@ class Email(BaseDBModel):
     # 关联关系
     account: Mapped[EmailAccount] = relationship("EmailAccount", back_populates="emails")
     attachments: Mapped[List["EmailAttachment"]] = relationship("EmailAttachment", back_populates="email", cascade="all, delete-orphan")
+    tags: Mapped[List["EmailTag"]] = relationship(
+        "EmailTag",
+        secondary="email_tag_relations",
+        back_populates="emails",
+        lazy="selectin"
+    )
+
+    def __repr__(self) -> str:
+        return f"<Email {self.subject}>"
 
 class EmailAttachment(BaseDBModel):
     """邮件附件模型"""
