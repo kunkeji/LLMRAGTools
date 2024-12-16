@@ -26,24 +26,6 @@ class CRUDEmailTag(CRUDBase[EmailTag, EmailTagCreate, EmailTagUpdate]):
             )
         ).first()
     
-    def get_system_tags(
-        self,
-        db: Session,
-        *,
-        skip: int = 0,
-        limit: int = 100
-    ) -> List[EmailTag]:
-        """获取系统标签"""
-        return db.query(self.model).filter(
-            and_(
-                self.model.is_system == True,
-                self.model.deleted_at.is_(None)
-            )
-        ).order_by(
-            self.model.sort_order.asc(),
-            self.model.id.asc()
-        ).offset(skip).limit(limit).all()
-    
     def get_user_tags(
         self,
         db: Session,
@@ -71,13 +53,10 @@ class CRUDEmailTag(CRUDBase[EmailTag, EmailTagCreate, EmailTagUpdate]):
         skip: int = 0,
         limit: int = 100
     ) -> List[EmailTag]:
-        """获取所有可用标签（系统标签 + 用户标签）"""
+        """获取所有可用标签（用户标签）"""
         return db.query(self.model).filter(
             and_(
-                or_(
-                    self.model.is_system == True,
-                    self.model.user_id == user_id
-                ),
+                self.model.user_id == user_id,
                 self.model.deleted_at.is_(None)
             )
         ).order_by(
@@ -102,6 +81,61 @@ class CRUDEmailTag(CRUDBase[EmailTag, EmailTagCreate, EmailTagUpdate]):
         db.refresh(db_obj)
         return db_obj
     
+    def create_default_tags(
+        self,
+        db: Session,
+        *,
+        user_id: int
+    ) -> List[EmailTag]:
+        """为新用户创建默认标签"""
+        default_tags = [
+            {
+                "name": "重要",
+                "color": "#ff4d4f",
+                "description": "重要邮件",
+                "sort_order": 1
+            },
+            {
+                "name": "工作",
+                "color": "#1890ff",
+                "description": "工作相关",
+                "sort_order": 2
+            },
+            {
+                "name": "个人",
+                "color": "#52c41a",
+                "description": "个人邮件",
+                "sort_order": 3
+            },
+            {
+                "name": "验证码",
+                "color": "#2db7f5",
+                "description": "验证码类的邮件",
+                "sort_order": 4
+            },
+            {
+                "name": "广告",
+                "color": "#ff5500",
+                "description": "广告邮件",
+                "sort_order": 5
+            }
+        ]
+        
+        created_tags = []
+        for tag_data in default_tags:
+            tag = EmailTag(
+                user_id=user_id,
+                **tag_data
+            )
+            db.add(tag)
+            created_tags.append(tag)
+        
+        db.commit()
+        for tag in created_tags:
+            db.refresh(tag)
+        
+        return created_tags
+    
     def get_tag_stats(self,db: Session,*,user_id: Optional[int] = None) -> Dict[int, int]:
         """获取标签使用统计"""
         query = db.query(
@@ -111,12 +145,7 @@ class CRUDEmailTag(CRUDBase[EmailTag, EmailTagCreate, EmailTagUpdate]):
         
         if user_id:
             # 只统计用户自己的标签
-            query = query.join(EmailTag).filter(
-                or_(
-                    EmailTag.is_system == True,
-                    EmailTag.user_id == user_id
-                )
-            )
+            query = query.join(EmailTag).filter(EmailTag.user_id == user_id)
         
         return {
             row.tag_id: row.email_count

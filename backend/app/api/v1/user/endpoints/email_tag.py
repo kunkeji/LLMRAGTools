@@ -104,11 +104,6 @@ def update_tag(
         )
     
     # 检查权限
-    if tag.is_system:
-        raise HTTPException(
-            status_code=403,
-            detail="不能修改系统标签"
-        )
     if tag.user_id != current_user.id:
         raise HTTPException(
             status_code=403,
@@ -147,11 +142,6 @@ def delete_tag(
         )
     
     # 检查权限
-    if tag.is_system:
-        raise HTTPException(
-            status_code=403,
-            detail="不能删除系统标签"
-        )
     if tag.user_id != current_user.id:
         raise HTTPException(
             status_code=403,
@@ -181,10 +171,10 @@ def add_email_tag(
         )
     
     # 检查是否是系统标签或用户自己的标签
-    if not tag.is_system and tag.user_id != current_user.id:
+    if tag.user_id != current_user.id:
         raise HTTPException(
             status_code=403,
-            detail="只能使用系统标签或自己创建的标签"
+            detail="只能使用自己创建的标签"
         )
     
     crud_email_tag.add_email_tag(db, email_id=email_id, tag_id=tag_id)

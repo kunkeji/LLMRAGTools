@@ -109,7 +109,7 @@ class SMTPClient:
             # 创建邮件
             msg = MIMEMultipart()
             msg["Subject"] = subject
-            msg["From"] = formataddr((from_name or settings.SMTP_SENDER_NAME, self.username))
+            msg["From"] = formataddr((from_name or settings.EMAILS_FROM_NAME, self.username))
             msg["To"] = ", ".join(to_addresses)
             
             if cc_addresses:
@@ -156,10 +156,10 @@ async def send_verification_email(email: str, code: str) -> None:
         smtp = SMTPClient(
             host=settings.SMTP_HOST,
             port=settings.SMTP_PORT,
-            username=settings.SMTP_USERNAME,
+            username=settings.SMTP_USER,
             password=settings.SMTP_PASSWORD,
-            use_ssl=settings.SMTP_USE_SSL,
-            use_tls=settings.SMTP_USE_TLS
+            use_ssl=settings.SMTP_SSL,
+            use_tls=settings.SMTP_TLS
         )
         
         # 发送邮件
@@ -169,9 +169,10 @@ async def send_verification_email(email: str, code: str) -> None:
             content=content,
             content_type="html"
         )
-        
+
+
     except Exception as e:
-        logger.error(f"发送��证码邮件失败: {str(e)}")
+        logger.error(f"发送验证码邮件失败: {str(e)}")
         raise
 
 async def send_reset_password_email(email: str, code: str) -> None:
@@ -185,10 +186,10 @@ async def send_reset_password_email(email: str, code: str) -> None:
         smtp = SMTPClient(
             host=settings.SMTP_HOST,
             port=settings.SMTP_PORT,
-            username=settings.SMTP_USERNAME,
+            username=settings.SMTP_USER,
             password=settings.SMTP_PASSWORD,
-            use_ssl=settings.SMTP_USE_SSL,
-            use_tls=settings.SMTP_USE_TLS
+            use_ssl=settings.SMTP_SSL,
+            use_tls=settings.SMTP_TLS
         )
         
         # 发送邮件

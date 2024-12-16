@@ -1,0 +1,23 @@
+-- 创建邮件标签表
+CREATE TABLE IF NOT EXISTS email_tags (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL COMMENT '用户ID',
+    name VARCHAR(50) NOT NULL COMMENT '标签名称',
+    color VARCHAR(7) NOT NULL COMMENT '标签颜色(HEX)',
+    description VARCHAR(200) COMMENT '标签描述',
+    sort_order INT NOT NULL DEFAULT 0 COMMENT '排序顺序',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted_at TIMESTAMP NULL COMMENT '删除时间',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) COMMENT '邮件标签';
+
+-- 创建邮件标签关联表
+CREATE TABLE IF NOT EXISTS email_tag_relations (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email_id INT NOT NULL COMMENT '邮件ID',
+    tag_id INT NOT NULL COMMENT '标签ID',
+    deleted_at TIMESTAMP NULL COMMENT '删除时间',
+    FOREIGN KEY (email_id) REFERENCES emails(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES email_tags(id) ON DELETE CASCADE
+) COMMENT '邮件标签关联'; 

@@ -77,7 +77,7 @@ async def send_verification_code(
         # 在后台发送邮件
         background_tasks.add_task(
             send_verification_email,
-            email_to=email_in.email,
+            email=email_in.email,
             code=verification_code.code
         )
         

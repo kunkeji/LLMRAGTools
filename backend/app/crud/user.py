@@ -7,6 +7,7 @@ from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
 from app.core.security.password import get_password_hash, verify_password
 from app.utils.file import delete_avatar
+from app.crud.email_tag import crud_email_tag
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
@@ -46,6 +47,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
+        
+        # 创建默认标签
+        crud_email_tag.create_default_tags(db=db, user_id=db_obj.id)
+        
         return db_obj
 
     def update(self, db: Session, *, db_obj: User, obj_in: UserUpdate) -> User:

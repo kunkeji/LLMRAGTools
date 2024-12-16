@@ -47,7 +47,6 @@ class EmailTag(EmailTagBase):
     """标签返回Schema"""
     id: int = Field(..., description="标签ID")
     user_id: Optional[int] = Field(None, description="用户ID")
-    is_system: bool = Field(default=False, description="是否系统标签")
     created_at: datetime = Field(..., description="创建时间")
     updated_at: datetime = Field(..., description="更新时间")
 

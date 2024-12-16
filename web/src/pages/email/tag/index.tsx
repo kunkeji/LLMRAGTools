@@ -46,7 +46,9 @@ const EmailTagPage: React.FC = () => {
 
   // 处理表单提交
   const handleSubmit = async (values: { name: string; color: string; description: string }) => {
-    values.color = `#${values.color.metaColor.r.toString(16).padStart(2, '0')}${values.color.metaColor.g.toString(16).padStart(2, '0')}${values.color.metaColor.b.toString(16).padStart(2, '0')}`;
+    if (values.color.metaColor) {
+      values.color = `#${values.color.metaColor.r.toString(16).padStart(2, '0')}${values.color.metaColor.g.toString(16).padStart(2, '0')}${values.color.metaColor.b.toString(16).padStart(2, '0')}`;
+    }
     try {
       if (editingTag) {
         await emailApi.updateTag(editingTag.id, values);
