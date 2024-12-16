@@ -13,6 +13,7 @@ class FeatureType(str, Enum):
     DOCUMENT_SUMMARY = "DOCUMENT_SUMMARY"  # 文档总结
     DOCUMENT_TRANSLATE = "DOCUMENT_TRANSLATE"  # 文档翻译
     LABEL_CLASSIFICATION = "LABEL_CLASSIFICATION"  # 标签分类
+    EMAIL_REPLY = "EMAIL_REPLY"  # 邮件回复
 
 class LLMFeature(BaseDBModel):
     """LLM功能定义"""

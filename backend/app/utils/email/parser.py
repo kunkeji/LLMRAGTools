@@ -1,6 +1,3 @@
-"""
-邮件解析模块
-"""
 import email
 from datetime import datetime
 from email.header import decode_header
@@ -35,16 +32,27 @@ def parse_email_address(addr: str) -> Tuple[str, str]:
     return decode_mime_words(name), address
 
 def get_email_body(msg: email.message.Message) -> Tuple[str, str]:
-    """获取邮件正文内容和类型"""
+    # """获取邮件正文内容和类型"""  默认返回html内容,如果没有则返回text内容
+    html_content = ""
+    text_content = ""
     if msg.is_multipart():
         for part in msg.walk():
             if part.get_content_maintype() == 'multipart':
                 continue
             if part.get_content_maintype() == 'text':
-                return part.get_payload(decode=True).decode(part.get_content_charset() or 'utf-8', errors='replace'), part.get_content_type()
+                if part.get_content_subtype() == 'html':
+                    html_content = part.get_payload(decode=True).decode(part.get_content_charset() or 'utf-8', errors='replace')
+                elif part.get_content_subtype() == 'plain':
+                    text_content = part.get_payload(decode=True).decode(part.get_content_charset() or 'utf-8', errors='replace')
     else:
-        return msg.get_payload(decode=True).decode(msg.get_content_charset() or 'utf-8', errors='replace'), msg.get_content_type()
-    return "", "text/plain"
+        if msg.get_content_maintype() == 'text':
+            if msg.get_content_subtype() == 'html':
+                html_content = msg.get_payload(decode=True).decode(msg.get_content_charset() or 'utf-8', errors='replace')
+            elif msg.get_content_subtype() == 'plain':
+                text_content = msg.get_payload(decode=True).decode(msg.get_content_charset() or 'utf-8', errors='replace')
+    if html_content == "":
+        return text_content, 'text/plain'
+    return html_content, 'text/html'
 
 def get_attachment_info(part: email.message.Message, email_id: int) -> Optional[EmailAttachmentCreate]:
     """获取邮件附件信息"""

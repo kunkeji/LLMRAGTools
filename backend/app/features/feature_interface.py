@@ -109,6 +109,12 @@ class FeatureInterface:
                     task="分类",
                     content=message
                 )
+            
+            case FeatureType.EMAIL_REPLY:
+                return template.format(
+                    task="回复",
+                    content=message
+                )
                 
             case _:
                 return template.format(content=message)

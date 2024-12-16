@@ -16,14 +16,14 @@ from app.utils.llm.client import LLMClient
 
 
 
-def create_tag_task(message_id: int) -> Task:
+def create_tag_task(email_id: int) -> Task:
     """创建标签同步任务"""
     # pass
     # 查询email的message_id是否存在
     with SessionLocal() as db:
-        email = db.query(Email).filter(Email.message_id == message_id).first()
+        email = db.query(Email).filter(Email.id == email_id).first()
         if not email:
-            raise ValueError(f"邮件不存在: {message_id}")
+            raise ValueError(f"邮件不存在: {email_id}")
         # 创建标签同步任务
         task = Task(
             name=f"同步邮件标签 {email.id}",

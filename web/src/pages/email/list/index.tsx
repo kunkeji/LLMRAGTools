@@ -74,30 +74,6 @@ const EmailList: React.FC = () => {
     }
   };
 
-  // 标记重要/取消重要
-  const handleMarkFlagged = async (emailId: number, isFlagged: boolean) => {
-    if (!accountId) return;
-    try {
-      await emailApi.markEmailFlagged(parseInt(accountId), emailId, isFlagged);
-      message.success(isFlagged ? '已标记为重要' : '已取消重要标记');
-      loadEmails();
-    } catch (error: any) {
-      message.error(error.message || '操作失败');
-    }
-  };
-
-  // 移动到文件夹
-  const handleMove = async (emailId: number, targetFolder: string) => {
-    if (!accountId) return;
-    try {
-      await emailApi.moveEmail(parseInt(accountId), emailId, targetFolder);
-      message.success('移动成功');
-      loadEmails();
-    } catch (error: any) {
-      message.error(error.message || '移动失败');
-    }
-  };
-
   // 删除邮件
   const handleDelete = (emailId: number) => {
     if (!accountId) return;
@@ -152,40 +128,40 @@ const EmailList: React.FC = () => {
 
   // 更新表格列配置
   const columns: ColumnsType<API.Email> = [
-    {
-      title: '操作',
-      key: 'action',
-      width: 120,
-      fixed: 'left',
-      render: (_, record) => (
-        <Space>
-          <Dropdown overlay={emailTagMenu(record)} trigger={['click']}>
-            <Button
-              type="text"
-              icon={<TagOutlined />}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </Dropdown>
-          <Button
-            type="text"
-            icon={record.is_flagged ? <StarFilled style={{ color: '#faad14' }} /> : <StarOutlined />}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleMarkFlagged(record.id, !record.is_flagged);
-            }}
-          />
-          <Button
-            type="text"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(record.id);
-            }}
-          />
-        </Space>
-      ),
-    },
+    // {
+    //   title: '操作',
+    //   key: 'action',
+    //   width: 120,
+    //   fixed: 'left',
+    //   render: (_, record) => (
+    //     <Space>
+    //       <Dropdown overlay={emailTagMenu(record)} trigger={['click']}>
+    //         <Button
+    //           type="text"
+    //           icon={<TagOutlined />}
+    //           onClick={(e) => e.stopPropagation()}
+    //         />
+    //       </Dropdown>
+    //       <Button
+    //         type="text"
+    //         icon={record.is_flagged ? <StarFilled style={{ color: '#faad14' }} /> : <StarOutlined />}
+    //         onClick={(e) => {
+    //           e.stopPropagation();
+    //           handleMarkFlagged(record.id, !record.is_flagged);
+    //         }}
+    //       />
+    //       <Button
+    //         type="text"
+    //         danger
+    //         icon={<DeleteOutlined />}
+    //         onClick={(e) => {
+    //           e.stopPropagation();
+    //           handleDelete(record.id);
+    //         }}
+    //       />
+    //     </Space>
+    //   ),
+    // },
     {
       title: '发件人',
       key: 'from',

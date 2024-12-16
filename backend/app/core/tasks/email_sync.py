@@ -212,7 +212,7 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                                 )
                                 updated_emails += 1
                                 # 创建标签同步任务
-                                create_tag_task(message_id);
+                                create_tag_task(existing_email.id);
                             else:
                                 # 创建新邮件
                                 email_obj = crud_email.create(
@@ -248,7 +248,7 @@ async def sync_email_account(account_id: int) -> Dict[str, Any]:
                                 
                                 new_emails += 1
                                 # 创建标签同步任务
-                                create_tag_task(message_id);
+                                create_tag_task(email_obj.id);
                             
                             # 定期提交事务和更新同步状态
                             if (new_emails + updated_emails) % 10 == 0:
