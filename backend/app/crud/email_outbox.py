@@ -1,6 +1,7 @@
 from typing import Optional, List, Union, Dict, Any
 from datetime import datetime
 from sqlalchemy.orm import Session
+from sqlalchemy import and_, or_
 from fastapi.encoders import jsonable_encoder
 
 from app.crud.base import CRUDBase
@@ -29,7 +30,7 @@ class CRUDEmailOutbox(CRUDBase[EmailOutbox, EmailOutboxCreate, EmailOutboxUpdate
         # 确定发件账户
         account_id = obj_in.account_id
         if not account_id and obj_in.reply_to_email_id:
-            # 如果是回复邮件,使用原邮件的账户
+            # 如果是回���件,使用原邮件的账户
             original_email = db.query(Email).filter(Email.id == obj_in.reply_to_email_id).first()
             if original_email:
                 account_id = original_email.account_id
@@ -65,16 +66,133 @@ class CRUDEmailOutbox(CRUDBase[EmailOutbox, EmailOutboxCreate, EmailOutboxUpdate
         *,
         user_id: int,
         skip: int = 0,
-        limit: int = 100
+        limit: int = 100,
+        filters: Optional[Dict[str, Any]] = None
     ) -> List[EmailOutbox]:
-        """获取用户的所有发送邮件"""
-        return db.query(self.model)\
+        """获取用户的所有发送邮件，支持筛选"""
+        query = db.query(self.model)\
             .join(EmailAccount)\
-            .filter(EmailAccount.user_id == user_id)\
-            .offset(skip)\
-            .limit(limit)\
-            .all()
+            .filter(EmailAccount.user_id == user_id)
             
+        # 添加筛选条件
+        if filters:
+            if filters.get("status"):
+                query = query.filter(self.model.status == filters["status"])
+            if filters.get("reply_type"):
+                query = query.filter(self.model.reply_type == filters["reply_type"])
+            if filters.get("account_id"):
+                query = query.filter(self.model.account_id == filters["account_id"])
+            if filters.get("search"):
+                search = f"%{filters['search']}%"
+                query = query.filter(
+                    or_(
+                        self.model.subject.ilike(search),
+                        self.model.recipients.ilike(search),
+                        self.model.content.ilike(search)
+                    )
+                )
+            if filters.get("start_date"):
+                query = query.filter(self.model.created_at >= filters["start_date"])
+            if filters.get("end_date"):
+                query = query.filter(self.model.created_at <= filters["end_date"])
+                
+        # 添加排序
+        query = query.order_by(self.model.created_at.desc())
+        
+        return query.offset(skip).limit(limit).all()
+    
+    def get_total_count(
+        self,
+        db: Session,
+        *,
+        user_id: int,
+        filters: Optional[Dict[str, Any]] = None
+    ) -> int:
+        """获取符合条件的总记录数"""
+        query = db.query(self.model)\
+            .join(EmailAccount)\
+            .filter(EmailAccount.user_id == user_id)
+            
+        # 添加筛选条件
+        if filters:
+            if filters.get("status"):
+                query = query.filter(self.model.status == filters["status"])
+            if filters.get("reply_type"):
+                query = query.filter(self.model.reply_type == filters["reply_type"])
+            if filters.get("account_id"):
+                query = query.filter(self.model.account_id == filters["account_id"])
+            if filters.get("search"):
+                search = f"%{filters['search']}%"
+                query = query.filter(
+                    or_(
+                        self.model.subject.ilike(search),
+                        self.model.recipients.ilike(search),
+                        self.model.content.ilike(search)
+                    )
+                )
+            if filters.get("start_date"):
+                query = query.filter(self.model.created_at >= filters["start_date"])
+            if filters.get("end_date"):
+                query = query.filter(self.model.created_at <= filters["end_date"])
+                
+        return query.count()
+    
+    def get_by_id_and_user(
+        self,
+        db: Session,
+        *,
+        email_id: int,
+        user_id: int
+    ) -> Optional[EmailOutbox]:
+        """获取指定ID的邮件（需验证用户权限）"""
+        return db.query(self.model)\
+            .join(EmailAccount, self.model.account_id == EmailAccount.id)\
+            .filter(
+                self.model.id == email_id,
+                EmailAccount.user_id == user_id
+            ).first()
+    
+    def delete(
+        self,
+        db: Session,
+        *,
+        email_id: int,
+        user_id: int
+    ) -> bool:
+        """删除邮件（硬删除）"""
+        db_obj = self.get_by_id_and_user(db, email_id=email_id, user_id=user_id)
+        if not db_obj:
+            return False
+            
+        db.delete(db_obj)
+        db.commit()
+        return True
+    
+    async def resend_email(
+        self,
+        db: Session,
+        *,
+        id: int,
+        user_id: int
+    ) -> Optional[EmailOutbox]:
+        """重新发送失败的邮件"""
+        db_obj = self.get_by_id_and_user(db, id=id, user_id=user_id)
+        if not db_obj:
+            return None
+            
+        if db_obj.status == "sent":
+            raise ValueError("Email already sent successfully")
+            
+        # 重置状态
+        db_obj.status = "draft"
+        db_obj.error_message = None
+        db_obj.send_time = None
+        db.commit()
+        db.refresh(db_obj)
+        
+        # 重新发送
+        return await self.send_email(db, email_id=id, user_id=user_id)
+    
     async def send_email(
         self,
         db: Session,

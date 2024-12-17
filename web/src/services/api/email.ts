@@ -264,4 +264,42 @@ export const emailApi = {
       data: params,
     });
   },
+
+  // 获取发件箱列表
+  getOutboxList: (params?: {
+    skip?: number;
+    limit?: number;
+    status?: string;
+    reply_type?: string;
+    account_id?: number;
+    search?: string;
+    start_date?: string;
+    end_date?: string;
+  }) => {
+    return apiRequest<API.ListResponse<API.EmailOutbox>>('/api/user/email-outbox/list', {
+      method: 'GET',
+      params,
+    });
+  },
+
+  // 获取发件箱邮件详情
+  getOutboxEmail: (emailId: number) => {
+    return apiRequest<API.EmailOutbox>(`/api/user/email-outbox/${emailId}`, {
+      method: 'GET',
+    });
+  },
+
+  // 删除发件箱邮件
+  deleteOutboxEmail: (emailId: number) => {
+    return apiRequest<void>(`/api/user/email-outbox/${emailId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // 重新发送失败的邮件
+  resendEmail: (emailId: number) => {
+    return apiRequest<API.EmailOutbox>(`/api/user/email-outbox/${emailId}/resend`, {
+      method: 'POST',
+    });
+  },
 }; 

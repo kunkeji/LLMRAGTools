@@ -1,0 +1,44 @@
+@import '@/styles/variables.less';
+
+.container {
+  padding: 24px;
+
+  :global {
+    .ant-card {
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+      border-radius: 8px;
+      border: none;
+    }
+
+    .ant-table-wrapper {
+      .ant-table-row {
+        &:hover {
+          background-color: #f0f7ff;
+        }
+      }
+
+      .ant-table-cell {
+        &.ant-table-cell-row-hover {
+          background-color: #e6f7ff;
+        }
+      }
+
+      .ant-table-tbody > tr > td {
+        padding: 12px;
+      }
+    }
+  }
+}
+
+.toolbar {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  .ant-space {
+    flex: 1;
+  }
+} 

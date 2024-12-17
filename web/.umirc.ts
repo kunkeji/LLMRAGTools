@@ -134,6 +134,11 @@ export default defineConfig({
           component: './email/compose',
           hideInMenu: true,
         },
+        {
+          path: '/email/outbox',
+          name: '发件箱',
+          component: './email/outbox',
+        },
       ],
     },
     {

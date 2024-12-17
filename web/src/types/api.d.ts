@@ -225,4 +225,32 @@ declare namespace API {
     created_at: string;
     updated_at: string;
   }
+
+  // 发件箱邮件类型
+  interface EmailOutbox {
+    id: number;
+    status: 'draft' | 'pending' | 'sent' | 'failed';
+    account_id: number;
+    reply_to_email_id?: number;
+    reply_type?: 'pre_reply' | 'auto_reply' | 'manual_reply' | 'quick_reply';
+    recipients: string;
+    cc?: string;
+    bcc?: string;
+    subject: string;
+    content: string;
+    content_type: string;
+    attachments?: string;
+    send_time?: string;
+    error_message?: string;
+    created_at: string;
+    updated_at: string;
+  }
+
+  // 发件箱列表响应
+  interface ListResponse<T> {
+    items: T[];
+    total: number;
+    page: number;
+    size: number;
+  }
 }
