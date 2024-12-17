@@ -144,6 +144,11 @@ const loadEmails = async (page = pagination.current, pageSize = pagination.pageS
     return type ? types[type] || type : '-';
   };
 
+  // 处理邮件点击
+  const handleEmailClick = (record: API.EmailOutbox) => {
+    history.push(`/email/outbox/${record.id}`);
+  };
+
   const columns: ColumnsType<API.EmailOutbox> = [
     {
       title: '收件人',
@@ -290,6 +295,10 @@ const loadEmails = async (page = pagination.current, pageSize = pagination.pageS
             showTotal: (total) => `共 ${total} 条`,
           }}
           onChange={handleTableChange}
+          onRow={(record) => ({
+            onClick: () => handleEmailClick(record),
+            style: { cursor: 'pointer' },
+          })}
         />
       </Card>
     </div>

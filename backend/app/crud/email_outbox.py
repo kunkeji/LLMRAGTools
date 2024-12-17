@@ -30,7 +30,7 @@ class CRUDEmailOutbox(CRUDBase[EmailOutbox, EmailOutboxCreate, EmailOutboxUpdate
         # 确定发件账户
         account_id = obj_in.account_id
         if not account_id and obj_in.reply_to_email_id:
-            # 如果是回复邮件,使用原邮件的账户
+            # 如果是回���邮件,使用原邮件的账户
             original_email = db.query(Email).filter(Email.id == obj_in.reply_to_email_id).first()
             if original_email:
                 account_id = original_email.account_id
@@ -144,13 +144,14 @@ class CRUDEmailOutbox(CRUDBase[EmailOutbox, EmailOutboxCreate, EmailOutboxUpdate
         email_id: int,
         user_id: int
     ) -> Optional[EmailOutbox]:
-        """获取指定ID的邮件（需验证用户权限）"""
-        return db.query(self.model)\
-            .join(EmailAccount, self.model.account_id == EmailAccount.id)\
-            .filter(
+        """根据ID和用户ID获取邮件"""
+        return db.query(self.model).join(EmailAccount).filter(
+            and_(
                 self.model.id == email_id,
-                EmailAccount.user_id == user_id
-            ).first()
+                EmailAccount.user_id == user_id,
+                self.model.deleted_at.is_(None)
+            )
+        ).first()
     
     def delete(
         self,

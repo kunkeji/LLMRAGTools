@@ -5,16 +5,14 @@ import logging
 from app.core.tasks.registry import task_registry
 from app.models.llm_channel import LLMChannel
 from app.crud.email_tag import crud_email_tag
-from app.models.llm_feature import LLMFeature, FeatureType
+from app.models.llm_feature import FeatureType
 from app.crud.llm_feature_mapping import crud_feature_mapping
 from app.models.task import Task, TaskStatus, TaskPriority
 from app.db.session import SessionLocal
 from app.models.email import Email
 
 from app.utils.llm.client import LLMClient
-
-
-
+from app.core.tasks.tag_operation import create_tag_operation_task
 
 def create_tag_task(email_id: int) -> Task:
     """创建标签同步任务"""
@@ -35,7 +33,6 @@ def create_tag_task(email_id: int) -> Task:
         )
         db.add(task)
         db.commit()
-
 
 @task_registry.register(name="sync_email_tag")
 async def sync_email_tag(email_id: int) -> Dict[str, Any]:
@@ -81,6 +78,8 @@ async def sync_email_tag(email_id: int) -> Dict[str, Any]:
         # 更新|添加标签 
         # 判断任务是否完成
         if email_tag:
+            # 创建邮件标签任务
+            create_tag_operation_task(email_id=email_id)
             return {"status": "success", "message": "标签同步成功"}
         else:
             return {"status": "error", "message": "标签同步失败"}

@@ -139,6 +139,12 @@ export default defineConfig({
           name: '发件箱',
           component: './email/outbox',
         },
+        {
+          path: '/email/outbox/:emailId',
+          name: '发件详情',
+          component: './email/outbox/detail',
+          hideInMenu: true,
+        },
       ],
     },
     {

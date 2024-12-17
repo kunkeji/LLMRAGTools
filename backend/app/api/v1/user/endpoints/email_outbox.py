@@ -145,11 +145,11 @@ def get_email(
     current_user: User = Depends(get_current_user)
 ) -> ResponseModel[EmailOutbox]:
     """
-    获取单个发送邮件详情
+    获取发件箱邮件详情
     """
     result = email_outbox.get_by_id_and_user(
         db=db,
-        id=email_id,
+        email_id=email_id,
         user_id=current_user.id
     )
     if not result:

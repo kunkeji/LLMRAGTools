@@ -10,15 +10,10 @@ class TagAction(str, Enum):
     MARK_READ = "mark_read"  # 标记已读
     MARK_UNREAD = "mark_unread"  # 标记未读
     MARK_IMPORTANT = "mark_important"  # 标记重要
-    # 预回复
     PRE_REPLY = "pre_reply"  # 预回复
-    # 自动回复
     AUTO_REPLY = "auto_reply"  # 自动回复
-    # 提醒
     REMIND = "remind"  # 通过微信提醒
-    # 移动到垃圾箱
     MOVE_TO_TRASH = "move_to_trash"  # 移动到垃圾箱
-    # 删除
     DELETE = "delete"  # 删除
 
 def get_all_actions() -> List[Dict[str, str]]:

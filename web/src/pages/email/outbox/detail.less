@@ -1,0 +1,54 @@
+@import '@/styles/variables.less';
+
+.container {
+  padding: 24px;
+
+  :global {
+    .ant-card {
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+      border-radius: 8px;
+      border: none;
+    }
+
+    .ant-descriptions-item-label {
+      width: 100px;
+      font-weight: 500;
+    }
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h4.ant-typography {
+    margin: 0;
+  }
+}
+
+.content {
+  padding: 16px;
+  background-color: #fafafa;
+  border-radius: 4px;
+  min-height: 200px;
+  
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  pre {
+    background-color: #f0f0f0;
+    padding: 12px;
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+
+  blockquote {
+    border-left: 4px solid @primary-color;
+    margin: 0;
+    padding-left: 12px;
+    color: @text-color-secondary;
+  }
+} 
