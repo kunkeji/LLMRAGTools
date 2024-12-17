@@ -46,16 +46,9 @@ class FeatureInterface:
             # 获取提示词模板
             prompt_template = mapping.prompt_template or mapping.feature.default_prompt
             
-            # 根据不同功能类型处理消息
-            prompt = await FeatureInterface._get_feature_prompt(
-                feature_type=feature_type,
-                template=prompt_template,
-                message=message
-            )
-            
             # 使用LLM客户端生成流式响应
             async for chunk in LLMClient.generate_stream(
-                prompt=prompt,
+                prompt=prompt_template,
                 message=message,
                 api_key=mapping.channel.api_key,
                 provider=mapping.channel.model_type,
@@ -71,50 +64,3 @@ class FeatureInterface:
             # 确保异常也能正确地流式输出
             yield f"Error: {str(e)}\n"
             raise
-            
-    @staticmethod
-    async def _get_feature_prompt(
-        feature_type: FeatureType,
-        template: str,
-        message: str
-    ) -> str:
-        # 根据不同功能类型处理提示词
-        match feature_type:
-            case FeatureType.DOCUMENT_WRITE:
-                return template.format(
-                    task="写作",
-                    content=message
-                )
-                
-            case FeatureType.DOCUMENT_IMPROVE:
-                return template.format(
-                    task="改进",
-                    content=message
-                )
-                
-            case FeatureType.DOCUMENT_SUMMARY:
-                return template.format(
-                    task="总结",
-                    content=message
-                )
-                
-            case FeatureType.DOCUMENT_TRANSLATE:
-                return template.format(
-                    task="翻译",
-                    content=message
-                )
-                
-            case FeatureType.LABEL_CLASSIFICATION:
-                return template.format(
-                    task="分类",
-                    content=message
-                )
-            
-            case FeatureType.EMAIL_REPLY:
-                return template.format(
-                    task="回复",
-                    content=message
-                )
-                
-            case _:
-                return template.format(content=message)

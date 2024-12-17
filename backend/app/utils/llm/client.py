@@ -66,6 +66,7 @@ class LLMClient:
         Yields:
             str: 生成的文本片段
         """
+
         # 获取提供者模块
         if provider not in LLMClient._providers:
             raise ValueError(f"不支持的LLM提供者: {provider}")

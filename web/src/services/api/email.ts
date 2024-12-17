@@ -41,11 +41,18 @@ export interface UpdateEmailParams {
 }
 
 // 标签相关接口
+export interface EmailTagAction {
+  name: string;
+  action_name: string;
+  description: string;
+}
+
 export interface EmailTag {
   id: number;
   name: string;
   color: string;
   description?: string;
+  action_name?: string;
   created_at: string;
   updated_at: string;
 }
@@ -54,12 +61,14 @@ export interface CreateTagParams {
   name: string;
   color: string;
   description?: string;
+  action_name?: string;
 }
 
 export interface UpdateTagParams {
   name?: string;
   color?: string;
   description?: string;
+  action_name?: string;
 }
 
 export const emailApi = {
@@ -217,6 +226,13 @@ export const emailApi = {
   removeEmailTag: (emailId: number, tagId: number) => {
     return apiRequest<void>(`/api/user/email/emails/${emailId}/tags/${tagId}`, {
       method: 'DELETE',
+    });
+  },
+
+  // 获取标签动作列表
+  getTagActions: () => {
+    return apiRequest<EmailTagAction[]>('/api/user/email/tag/actions', {
+      method: 'GET',
     });
   },
 }; 

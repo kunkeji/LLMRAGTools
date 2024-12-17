@@ -36,6 +36,11 @@ class EmailTag(BaseDBModel):
         nullable=False,
         comment="用户ID"
     )
+    action_name: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        comment="标签动作名称"
+    )
     
     # 排序
     sort_order: Mapped[int] = mapped_column(

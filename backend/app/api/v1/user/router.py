@@ -11,7 +11,8 @@ from app.api.v1.user.endpoints import (
     email,
     email_tag,
     document,
-    feature_mapping
+    feature_mapping,
+    tag_actions
 )
 
 router = APIRouter()
@@ -62,6 +63,13 @@ router.include_router(
 router.include_router(
     email_tag.router,
     prefix="/email",
+    tags=["邮箱管理"]
+)
+
+# 标签动作路由
+router.include_router(
+    tag_actions.router,
+    prefix="/email/tag",
     tags=["邮箱管理"]
 )
 

@@ -93,30 +93,35 @@ class CRUDEmailTag(CRUDBase[EmailTag, EmailTagCreate, EmailTagUpdate]):
                 "name": "重要",
                 "color": "#ff4d4f",
                 "description": "重要邮件",
+                "action_name": "no_operation",
                 "sort_order": 1
             },
             {
                 "name": "工作",
                 "color": "#1890ff",
                 "description": "工作相关",
+                "action_name": "no_operation",
                 "sort_order": 2
             },
             {
                 "name": "个人",
                 "color": "#52c41a",
                 "description": "个人邮件",
+                "action_name": "no_operation",
                 "sort_order": 3
             },
             {
                 "name": "验证码",
                 "color": "#2db7f5",
                 "description": "验证码类的邮件",
+                "action_name": "no_operation",
                 "sort_order": 4
             },
             {
                 "name": "广告",
                 "color": "#ff5500",
                 "description": "广告邮件",
+                "action_name": "no_operation",
                 "sort_order": 5
             }
         ]

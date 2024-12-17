@@ -12,7 +12,7 @@ class EmailTagBase(BaseSchema):
     color: str = Field(default="#1890ff", pattern="^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$", description="标签颜色(十六进制，支持3位或6位)")
     description: Optional[str] = Field(None, max_length=200, description="标签描述")
     sort_order: int = Field(default=0, description="排序顺序")
-
+    action_name: Optional[str] = Field(None, description="标签动作名称")
     @field_validator('color')
     def validate_color(cls, v: str) -> str:
         """验证颜色格式"""
@@ -33,6 +33,7 @@ class EmailTagUpdate(BaseSchema):
     color: Optional[str] = Field(None, pattern="^#[0-9a-fA-F]{6}$", description="标签颜色(十六进制)")
     description: Optional[str] = Field(None, max_length=200, description="标签描述")
     sort_order: Optional[int] = Field(None, description="排序顺序")
+    action_name: Optional[str] = Field(None, description="标签动作名称")
 
     @field_validator('color')
     def validate_color(cls, v: Optional[str]) -> Optional[str]:
@@ -47,6 +48,7 @@ class EmailTag(EmailTagBase):
     """标签返回Schema"""
     id: int = Field(..., description="标签ID")
     user_id: Optional[int] = Field(None, description="用户ID")
+    action_name: Optional[str] = Field(None, description="标签动作名称")
     created_at: datetime = Field(..., description="创建时间")
     updated_at: datetime = Field(..., description="更新时间")
 

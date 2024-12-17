@@ -59,7 +59,8 @@ async def sync_email_tag(email_id: int) -> Dict[str, Any]:
         llm_model = db.query(LLMChannel).filter(LLMChannel.id == feature_mapping.channel_id).first()
         if not llm_model:
             raise ValueError(f"模型不存在: {feature_mapping.channel_id}")
-        tag_str = "\n".join([f"{tag.id}:{tag.name}" for tag in tags])  # 使用换行符拼接id:name格式
+        tag_str = "\n".join([f"{tag.id}:{tag.name}({tag.description})\n" for tag in tags])
+
         prompt = feature_mapping.prompt_template.replace("{{tag_list}}", tag_str)
         # 调用llm模型
         tag_id = LLMClient.generate(
@@ -69,7 +70,12 @@ async def sync_email_tag(email_id: int) -> Dict[str, Any]:
             provider=llm_model.model_type,
             model=llm_model.model
         )
-        print(tag_id)
+        # 先将tag_id转换成int
+        tag_id = int(tag_id)
+        # 判断 tag_id是否为空
+        if not tag_id:
+            raise ValueError(f"标签同步失败: {tag_id}")
+        
         # 添加标签
         email_tag = crud_email_tag.add_email_tag(db=db, email_id=email_id, tag_id=tag_id)
         # 更新|添加标签 

@@ -4,6 +4,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+import logging
 
 from app.api.v1.deps.auth import get_current_user, get_db
 from app.models.user import User
@@ -94,7 +95,6 @@ def update_tag(
     更新标签信息
     
     - 只能更新用户自己创建的标签
-    - 不能修改系统标签
     """
     tag = crud_email_tag.get(db, id=tag_id)
     if not tag:
@@ -118,8 +118,24 @@ def update_tag(
                 detail="标签名称已存在"
             )
     
-    tag = crud_email_tag.update(db, db_obj=tag, obj_in=tag_in)
-    return response_success(data=tag)
+    try:
+        tag = crud_email_tag.update(db, db_obj=tag, obj_in=tag_in)
+        # 尝试序列化返回数据
+        from app.schemas.email_tag import EmailTag as EmailTagSchema
+        try:
+            result = EmailTagSchema.model_validate(tag)
+            return response_success(data=result)
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"标签序列化失败: {str(e)}"
+            )
+            
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"更新标签失败: {str(e)}"
+        )
 
 @router.delete("/tags/{tag_id}", summary="删除标签")
 def delete_tag(
