@@ -30,7 +30,7 @@ class CRUDEmailOutbox(CRUDBase[EmailOutbox, EmailOutboxCreate, EmailOutboxUpdate
         # 确定发件账户
         account_id = obj_in.account_id
         if not account_id and obj_in.reply_to_email_id:
-            # 如果是回���件,使用原邮件的账户
+            # 如果是回复邮件,使用原邮件的账户
             original_email = db.query(Email).filter(Email.id == obj_in.reply_to_email_id).first()
             if original_email:
                 account_id = original_email.account_id

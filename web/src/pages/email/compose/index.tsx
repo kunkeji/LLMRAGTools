@@ -7,6 +7,7 @@ import { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor/editor';
 import { emailApi } from '@/services/api/email';
 import '@wangeditor/editor/dist/css/style.css';
 import styles from './index.less';
+import { CUSTOM_BUTTON_KEY } from '../components/CustomButton';
 
 const { Option } = Select;
 
@@ -45,6 +46,8 @@ const EmailCompose: React.FC = () => {
       '|',
       'undo',
       'redo',
+      "|",
+      CUSTOM_BUTTON_KEY,
     ],
   };
 
