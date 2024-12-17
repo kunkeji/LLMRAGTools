@@ -34,5 +34,6 @@ __all__ = [
     "test_smtp_connection",
     "send_verification_email",
     "send_reset_password_email",
-    "send_test_email"
+    "send_test_email",
+    "send_email"
 ]

@@ -14,6 +14,7 @@ from app.models.llm_feature import LLMFeature
 from app.models.llm_feature_mapping import LLMFeatureMapping
 from app.models.email import Email, EmailAttachment, EmailSyncLog
 from app.models.email_tag import EmailTag,EmailTagRelation
+from app.models.email_outbox import EmailOutbox
 
 # 导出所有模型
 __all__ = [
@@ -30,7 +31,8 @@ __all__ = [
     "LLMFeatureMapping",
     "Email",
     "EmailAttachment",
-    "EmailSyncLog"
+    "EmailSyncLog",
     "EmailTag",
-    "EmailTagRelation"
+    "EmailTagRelation",
+    "EmailOutbox"
 ]

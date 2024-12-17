@@ -44,6 +44,7 @@ class Email(BaseDBModel):
         back_populates="emails",
         lazy="selectin"
     )
+    replies: Mapped[List["EmailOutbox"]] = relationship("EmailOutbox", back_populates="reply_to_email")
 
     def __repr__(self) -> str:
         return f"<Email {self.subject}>"

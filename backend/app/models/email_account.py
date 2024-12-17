@@ -174,6 +174,7 @@ class EmailAccount(BaseDBModel):
     user = relationship("User", back_populates="email_accounts")
     emails: Mapped[List["Email"]] = relationship("Email", back_populates="account", cascade="all, delete-orphan")
     sync_logs: Mapped[List["EmailSyncLog"]] = relationship("EmailSyncLog", back_populates="account", cascade="all, delete-orphan")
+    outbox_emails: Mapped[List["EmailOutbox"]] = relationship("EmailOutbox", back_populates="account", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<EmailAccount {self.email_address}>"

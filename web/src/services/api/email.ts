@@ -71,6 +71,19 @@ export interface UpdateTagParams {
   action_name?: string;
 }
 
+export interface SendEmailParams {
+  account_id: number;
+  recipients: string;
+  cc?: string;
+  bcc?: string;
+  subject: string;
+  content: string;
+  content_type?: string;
+  attachments?: string;
+  reply_to_email_id?: number;
+  reply_type?: string;
+}
+
 export const emailApi = {
   // 获取邮件账户列表
   getAccounts: () => {
@@ -233,6 +246,22 @@ export const emailApi = {
   getTagActions: () => {
     return apiRequest<EmailTagAction[]>('/api/user/email/tag/actions', {
       method: 'GET',
+    });
+  },
+
+  // 预发送邮件
+  sendEmail: (params: SendEmailParams) => {
+    return apiRequest<void>('/api/user/email-outbox/send', {
+      method: 'POST',
+      data: params,
+    });
+  },
+
+  // 直接发送邮件
+  sendEmailDirect: (params: SendEmailParams) => {
+    return apiRequest<void>('/api/user/email-outbox/send-direct', {
+      method: 'POST',
+      data: params,
     });
   },
 }; 

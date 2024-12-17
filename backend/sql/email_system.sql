@@ -142,4 +142,30 @@ INSERT INTO `email_tags` (`name`, `color`, `description`, `sort_order`, `is_syst
 ('账单', '#108ee9', '账单类邮件', 4, 1),
 ('提醒', '#faad14', '提醒类邮件', 5, 1);
 
+-- 创建邮件发送表
+CREATE TABLE IF NOT EXISTS `email_outbox` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account_id` int(11) NOT NULL,
+  `reply_to_email_id` int(11) DEFAULT NULL,
+  `reply_type` enum('pre_reply','auto_reply','manual_reply','quick_reply') DEFAULT NULL,
+  `recipients` text NOT NULL,
+  `cc` text DEFAULT NULL,
+  `bcc` text DEFAULT NULL,
+  `subject` varchar(500) DEFAULT NULL,
+  `content` text NOT NULL,
+  `content_type` varchar(50) NOT NULL DEFAULT 'text/html',
+  `attachments` text DEFAULT NULL,
+  `status` enum('draft','pending','sent','failed') NOT NULL DEFAULT 'draft',
+  `send_time` datetime DEFAULT NULL,
+  `error_message` varchar(500) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `account_id` (`account_id`),
+  KEY `reply_to_email_id` (`reply_to_email_id`),
+  CONSTRAINT `email_outbox_ibfk_1` FOREIGN KEY (`account_id`) REFERENCES `email_accounts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `email_outbox_ibfk_2` FOREIGN KEY (`reply_to_email_id`) REFERENCES `emails` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1; 

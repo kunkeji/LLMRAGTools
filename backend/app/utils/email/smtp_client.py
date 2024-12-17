@@ -27,24 +27,7 @@ async def test_smtp_connection(
     use_ssl: bool = True,
     use_tls: bool = False
 ) -> Dict[str, Any]:
-    """测试SMTP连接
-    
-    Args:
-        host: SMTP服务器地址
-        port: SMTP端口
-        username: 用户名
-        password: 密码
-        use_ssl: 是否使用SSL
-        use_tls: 是否使用TLS
-        
-    Returns:
-        Dict[str, Any]: 测试结果
-        {
-            "success": bool,
-            "error": Optional[str],
-            "test_time": datetime
-        }
-    """
+
     try:
         smtp = aiosmtplib.SMTP(
             hostname=host,
@@ -104,7 +87,6 @@ class SMTPClient:
         bcc_addresses: Optional[List[str]] = None,
         from_name: Optional[str] = None
     ) -> None:
-        """发送邮件"""
         try:
             # 创建邮件
             msg = MIMEMultipart()
@@ -118,7 +100,7 @@ class SMTPClient:
                 msg["Bcc"] = ", ".join(bcc_addresses)
             
             # 添加正文
-            msg.attach(MIMEText(content, content_type, "utf-8"))
+            msg.attach(MIMEText(content, 'html', "utf-8"))
             
             # 连接SMTP服务器并发送
             smtp = aiosmtplib.SMTP(
@@ -127,7 +109,6 @@ class SMTPClient:
                 use_tls=self.use_ssl,
                 start_tls=self.use_tls
             )
-            
             await smtp.connect()
             await smtp.login(self.username, self.password)
             
@@ -140,7 +121,6 @@ class SMTPClient:
             
             await smtp.send_message(msg, self.username, all_recipients)
             await smtp.quit()
-            
         except Exception as e:
             logger.error(f"发送邮件失败: {str(e)}")
             raise

@@ -16,5 +16,6 @@ from app.models import (
     EmailAttachment,
     EmailSyncLog,
     EmailTag,
-    EmailTagRelation
+    EmailTagRelation,
+    EmailOutbox
 )

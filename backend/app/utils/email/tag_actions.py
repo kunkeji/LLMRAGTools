@@ -10,11 +10,16 @@ class TagAction(str, Enum):
     MARK_READ = "mark_read"  # 标记已读
     MARK_UNREAD = "mark_unread"  # 标记未读
     MARK_IMPORTANT = "mark_important"  # 标记重要
-    MARK_UNIMPORTANT = "mark_unimportant"  # 取消标记重要
-    ARCHIVE = "archive"  # 归档
-    UNARCHIVE = "unarchive"  # 取消归档
+    # 预回复
+    PRE_REPLY = "pre_reply"  # 预回复
+    # 自动回复
+    AUTO_REPLY = "auto_reply"  # 自动回复
+    # 提醒
+    REMIND = "remind"  # 通过微信提醒
+    # 移动到垃圾箱
     MOVE_TO_TRASH = "move_to_trash"  # 移动到垃圾箱
-    RESTORE_FROM_TRASH = "restore_from_trash"  # 从垃圾箱恢复
+    # 删除
+    DELETE = "delete"  # 删除
 
 def get_all_actions() -> List[Dict[str, str]]:
     """
@@ -45,19 +50,19 @@ def get_all_actions() -> List[Dict[str, str]]:
             "description": "将邮件标记为重要"
         },
         {
-            "name": "取消重要标记",
-            "action_name": TagAction.MARK_UNIMPORTANT,
-            "description": "取消邮件的重要标记"
+            "name": "预回复",
+            "action_name": TagAction.PRE_REPLY,
+            "description": "预回复邮件"
         },
         {
-            "name": "归档",
-            "action_name": TagAction.ARCHIVE,
-            "description": "将邮件移动到归档文件夹"
+            "name": "自动回复",
+            "action_name": TagAction.AUTO_REPLY,
+            "description": "自动回复邮件"
         },
         {
-            "name": "取消归档",
-            "action_name": TagAction.UNARCHIVE,
-            "description": "将邮件从归档文件夹恢复"
+            "name": "提醒",
+            "action_name": TagAction.REMIND,
+            "description": "通过微信提醒"
         },
         {
             "name": "移动到垃圾箱",
@@ -65,9 +70,9 @@ def get_all_actions() -> List[Dict[str, str]]:
             "description": "将邮件移动到垃圾箱"
         },
         {
-            "name": "从垃圾箱恢复",
-            "action_name": TagAction.RESTORE_FROM_TRASH,
-            "description": "将邮件从垃圾箱恢复"
+            "name": "删除",
+            "action_name": TagAction.DELETE,
+            "description": "删除邮件"
         }
     ]
     return actions

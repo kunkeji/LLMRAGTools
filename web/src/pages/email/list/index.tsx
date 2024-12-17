@@ -236,6 +236,13 @@ const EmailList: React.FC = () => {
               <Option value={false}>未读</Option>
             </Select>
           </Space>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => history.push(`/email/compose?account_id=${accountId}`)}
+          >
+            写邮件
+          </Button>
         </div>
 
         <Table

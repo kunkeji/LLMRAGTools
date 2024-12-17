@@ -128,6 +128,12 @@ export default defineConfig({
           component: './email/list/detail',
           hideInMenu: true,
         },
+        {
+          path: '/email/compose',
+          name: '写邮件',
+          component: './email/compose',
+          hideInMenu: true,
+        },
       ],
     },
     {

@@ -12,7 +12,8 @@ from app.api.v1.user.endpoints import (
     email_tag,
     document,
     feature_mapping,
-    tag_actions
+    tag_actions,
+    email_outbox
 )
 
 router = APIRouter()
@@ -84,4 +85,10 @@ router.include_router(
     feature_mapping.router,
     prefix="/feature-mappings",
     tags=["功能映射"]
+)
+
+router.include_router(
+    email_outbox.router,
+    prefix="/email-outbox",
+    tags=["邮箱管理"]
 ) 

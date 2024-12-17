@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Descriptions, Button, Space, message, Tag, Typography, Divider, Dropdown, Menu } from 'antd';
+import { Card, Descriptions, Button, Space, message, Tag, Typography, Divider, Dropdown, Menu, Form } from 'antd';
 import { ArrowLeftOutlined, StarOutlined, StarFilled, DeleteOutlined, DownloadOutlined, TagOutlined } from '@ant-design/icons';
 import { useParams, history } from '@umijs/max';
 import { emailApi } from '@/services/api/email';
@@ -77,7 +77,7 @@ const EmailDetail: React.FC = () => {
       }
       loadData();
     } catch (error: any) {
-      message.error(error.message || '操作失败');
+      message.error(error.message || '��作失败');
     }
   };
 
@@ -121,6 +121,12 @@ const EmailDetail: React.FC = () => {
                 <Title level={4}>{email.subject}</Title>
               </Space>
               <Space>
+                <Button
+                  type="primary"
+                  onClick={() => history.push(`/email/compose?account_id=${accountId}&reply_to=${emailId}&reply_type=reply`)}
+                >
+                  回复
+                </Button>
                 <Dropdown overlay={tagMenu} trigger={['click']}>
                   <Button
                     type="text"
@@ -219,6 +225,23 @@ const EmailDetail: React.FC = () => {
                 __html: email.content_type === 'text/html' ? email.content : email.content.replace(/\n/g, '<br/>'),
               }}
             />
+
+            <Divider style={{ margin: '24px 0' }} />
+
+            <div className={styles.quickReply}>
+              <Title level={5}>快速回复</Title>
+              <Form
+                onFinish={(values) => {
+                  history.push(`/email/compose?account_id=${accountId}&reply_to=${emailId}&reply_type=quick_reply`);
+                }}
+              >
+                <Form.Item>
+                  <Button type="primary" htmlType="submit">
+                    写回复
+                  </Button>
+                </Form.Item>
+              </Form>
+            </div>
           </>
         )}
       </Card>
