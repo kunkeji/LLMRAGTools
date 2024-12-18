@@ -58,4 +58,31 @@
     padding-left: 12px;
     color: @text-color-secondary;
   }
+}
+
+.replies {
+  .replySection {
+    margin-top: 16px;
+
+    h4 {
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: @text-color-secondary;
+    }
+
+    :global {
+      .ant-table {
+        margin-bottom: 24px;
+      }
+
+      .ant-table-thead > tr > th {
+        background: #fafafa;
+        font-weight: 500;
+      }
+
+      .ant-table-tbody > tr > td {
+        padding: 8px 16px;
+      }
+    }
+  }
 } 

@@ -19,6 +19,8 @@ from app.db.session import get_db
 from app.core.tasks.email_sync import create_sync_task
 from app.schemas.email import Email, EmailUpdate
 from app.crud.email import crud_email
+from app.models.email_outbox import EmailOutbox
+from app.schemas.email import Email as EmailSchema
 
 router = APIRouter()
 
@@ -258,7 +260,7 @@ def get_emails(
         "pages": (total + limit - 1) // limit
     })
 
-@router.get("/accounts/{account_id}/emails/{email_id}", response_model=ResponseModel[Email])
+@router.get("/accounts/{account_id}/emails/{email_id}", response_model=ResponseModel[dict])
 def get_email(
     *,
     db: Session = Depends(get_db),
@@ -266,7 +268,7 @@ def get_email(
     account_id: int,
     email_id: int
 ):
-    """获取邮件详情"""
+    """获取邮件详情，包含回复信息"""
     # 检查账户是否存在且属于当前用户
     account = crud_email_account.get(db, id=account_id)
     if not account or account.user_id != current_user.id:
@@ -282,7 +284,43 @@ def get_email(
             detail="Email not found"
         )
     
-    return response_success(data=email)
+    # 查询相关的回复邮件
+    replies = db.query(EmailOutbox).filter(
+        EmailOutbox.reply_to_email_id == email_id,
+        EmailOutbox.deleted_at.is_(None)
+    ).all()
+
+    # 将回复邮件按类型分组
+    reply_info = {
+        "pre_replies": [],
+        "auto_replies": [],
+        "manual_replies": [],
+        "quick_replies": []
+    }
+
+    for reply in replies:
+        reply_data = {
+            "id": reply.id,
+            "subject": reply.subject,
+            "status": reply.status,
+            "created_at": reply.created_at.isoformat(),
+            "send_time": reply.send_time.isoformat() if reply.send_time else None
+        }
+        
+        if reply.reply_type == "pre_reply":
+            reply_info["pre_replies"].append(reply_data)
+        elif reply.reply_type == "auto_reply":
+            reply_info["auto_replies"].append(reply_data)
+        elif reply.reply_type == "manual_reply":
+            reply_info["manual_replies"].append(reply_data)
+        elif reply.reply_type == "quick_reply":
+            reply_info["quick_replies"].append(reply_data)
+    
+    # 构造返回数据
+    return response_success(data={
+        **EmailSchema.model_validate(email).model_dump(),
+        "replies": reply_info
+    })
 
 @router.put("/accounts/{account_id}/emails/{email_id}", response_model=ResponseModel[Email])
 def update_email(
@@ -294,7 +332,7 @@ def update_email(
     email_in: EmailUpdate
 ):
     """更新邮件"""
-    # 检查账户��否存在且属于当前用户
+    # 检查账户是否存在且属于当前用户
     account = crud_email_account.get(db, id=account_id)
     if not account or account.user_id != current_user.id:
         raise HTTPException(

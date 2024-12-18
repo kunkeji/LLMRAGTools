@@ -96,10 +96,10 @@ class CustomButtonMenu {
 
 // 注册自定义菜单
 Boot.registerMenu({
-  key: 'customButton',
+  key: 'emailCustomButton',
   factory() {
     return new CustomButtonMenu();
   },
 });
 
-export const CUSTOM_BUTTON_KEY = 'customButton';
+export const CUSTOM_BUTTON_KEY = 'emailCustomButton';

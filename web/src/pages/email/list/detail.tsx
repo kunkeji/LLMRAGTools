@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Descriptions, Button, Space, message, Tag, Typography, Divider, Dropdown, Menu, Form } from 'antd';
+import { Card, Descriptions, Button, Space, message, Tag, Typography, Divider, Dropdown, Menu, Form, Table } from 'antd';
 import { ArrowLeftOutlined, StarOutlined, StarFilled, DeleteOutlined, DownloadOutlined, TagOutlined } from '@ant-design/icons';
 import { useParams, history } from '@umijs/max';
 import { emailApi } from '@/services/api/email';
@@ -8,10 +8,42 @@ import styles from './detail.less';
 
 const { Title } = Typography;
 
+interface EmailReply {
+  id: number;
+  subject: string;
+  status: string;
+  created_at: string;
+  send_time: string | null;
+}
+
+interface EmailResponse {
+  id: number;
+  subject: string;
+  content: string;
+  content_type: string;
+  from_address: string;
+  from_name: string | null;
+  to_address: string[];
+  cc_address: string[];
+  bcc_address: string[];
+  date: string;
+  is_read: boolean;
+  is_flagged: boolean;
+  has_attachments: boolean;
+  attachments: API.EmailAttachment[];
+  tags: EmailTag[];
+  replies: {
+    pre_replies: EmailReply[];
+    auto_replies: EmailReply[];
+    manual_replies: EmailReply[];
+    quick_replies: EmailReply[];
+  };
+}
+
 const EmailDetail: React.FC = () => {
   const { accountId, emailId } = useParams<{ accountId: string; emailId: string }>();
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState<API.Email>();
+  const [emailData, setEmailData] = useState<EmailResponse>();
   const [tags, setTags] = useState<EmailTag[]>([]);
 
   // 加载邮件详情和标签
@@ -19,14 +51,14 @@ const EmailDetail: React.FC = () => {
     if (!accountId || !emailId) return;
     try {
       setLoading(true);
-      const [emailData, tagsData] = await Promise.all([
+      const [emailResponse, tagsData] = await Promise.all([
         emailApi.getEmail(parseInt(accountId), parseInt(emailId)),
         emailApi.getTags(),
       ]);
-      setEmail(emailData);
+      setEmailData(emailResponse);
       setTags(tagsData);
       // 标记为已读
-      if (!emailData.is_read) {
+      if (!emailResponse.is_read) {
         await emailApi.markEmailRead(parseInt(accountId), parseInt(emailId), true);
       }
     } catch (error: any) {
@@ -42,7 +74,7 @@ const EmailDetail: React.FC = () => {
 
   // 标记重要/取消重要
   const handleMarkFlagged = async (isFlagged: boolean) => {
-    if (!accountId || !emailId) return;
+    if (!accountId || !emailId || !emailData) return;
     try {
       await emailApi.markEmailFlagged(parseInt(accountId), parseInt(emailId), isFlagged);
       message.success(isFlagged ? '已标记为重要' : '已取消重要标记');
@@ -77,7 +109,7 @@ const EmailDetail: React.FC = () => {
       }
       loadData();
     } catch (error: any) {
-      message.error(error.message || '��作失败');
+      message.error(error.message || '操作失败');
     }
   };
 
@@ -87,11 +119,11 @@ const EmailDetail: React.FC = () => {
       {tags.map(tag => (
         <Menu.Item
           key={tag.id}
-          onClick={() => handleEmailTag(tag.id, email?.tags?.includes(tag.id) || false)}
+          onClick={() => handleEmailTag(tag.id, emailData?.tags?.some(t => t.id === tag.id) || false)}
         >
           <Space>
             <Tag color={tag.color}>{tag.name}</Tag>
-            {email?.tags?.includes(tag.id) && <span style={{ color: '#52c41a' }}>✓</span>}
+            {emailData?.tags?.some(t => t.id === tag.id) && <span style={{ color: '#52c41a' }}>✓</span>}
           </Space>
         </Menu.Item>
       ))}
@@ -104,10 +136,58 @@ const EmailDetail: React.FC = () => {
     message.info('附件下载功能开发中');
   };
 
+  // 回复列表列配置
+  const replyColumns = [
+    {
+      title: '主题',
+      dataIndex: 'subject',
+      key: 'subject',
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => {
+        const statusConfig = {
+          draft: { color: 'default', text: '草稿' },
+          pending: { color: 'processing', text: '发送中' },
+          sent: { color: 'success', text: '已发送' },
+          failed: { color: 'error', text: '发送失败' },
+        };
+        const config = statusConfig[status as keyof typeof statusConfig] || { color: 'default', text: status };
+        return <Tag color={config.color}>{config.text}</Tag>;
+      },
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      render: (time: string) => new Date(time).toLocaleString(),
+    },
+    {
+      title: '发送时间',
+      dataIndex: 'send_time',
+      key: 'send_time',
+      render: (time: string | null) => time ? new Date(time).toLocaleString() : '-',
+    },
+    {
+      title: '操作',
+      key: 'action',
+      render: (record: EmailReply) => (
+        <Button
+          type="link"
+          onClick={() => history.push(`/email/outbox/${record.id}`)}
+        >
+          查看
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <div className={styles.container}>
       <Card loading={loading}>
-        {email && (
+        {emailData && (
           <>
             <div className={styles.header}>
               <Space>
@@ -118,7 +198,7 @@ const EmailDetail: React.FC = () => {
                 >
                   返回
                 </Button>
-                <Title level={4}>{email.subject}</Title>
+                <Title level={4}>{emailData.subject}</Title>
               </Space>
               <Space>
                 <Button
@@ -135,8 +215,8 @@ const EmailDetail: React.FC = () => {
                 </Dropdown>
                 <Button
                   type="text"
-                  icon={email.is_flagged ? <StarFilled style={{ color: '#faad14' }} /> : <StarOutlined />}
-                  onClick={() => handleMarkFlagged(!email.is_flagged)}
+                  icon={emailData.is_flagged ? <StarFilled style={{ color: '#faad14' }} /> : <StarOutlined />}
+                  onClick={() => handleMarkFlagged(!emailData.is_flagged)}
                 />
                 <Button
                   type="text"
@@ -151,32 +231,32 @@ const EmailDetail: React.FC = () => {
 
             <Descriptions column={1}>
               <Descriptions.Item label="发件人">
-                {email.from_name ? (
+                {emailData.from_name ? (
                   <>
-                    <span>{email.from_name}</span>
+                    <span>{emailData.from_name}</span>
                     <span style={{ marginLeft: 8, color: '#666' }}>
-                      &lt;{email.from_address}&gt;
+                      &lt;{emailData.from_address}&gt;
                     </span>
                   </>
                 ) : (
-                  email.from_address
+                  emailData.from_address
                 )}
               </Descriptions.Item>
               <Descriptions.Item label="收件人">
-                {email.to_address.join(', ')}
+                {emailData.to_address.join(', ')}
               </Descriptions.Item>
-              {email.cc_address.length > 0 && (
+              {emailData.cc_address.length > 0 && (
                 <Descriptions.Item label="抄送">
-                  {email.cc_address.join(', ')}
+                  {emailData.cc_address.join(', ')}
                 </Descriptions.Item>
               )}
               <Descriptions.Item label="时间">
-                {new Date(email.date).toLocaleString()}
+                {new Date(emailData.date).toLocaleString()}
               </Descriptions.Item>
-              {email.tags && email.tags.length > 0 && (
+              {emailData.tags && emailData.tags.length > 0 && (
                 <Descriptions.Item label="标签">
                   <Space>
-                    {email.tags.map(tag => (
+                    {emailData.tags.map(tag => (
                       <Tag
                         key={tag.id}
                         color={tag.color}
@@ -194,13 +274,13 @@ const EmailDetail: React.FC = () => {
               )}
             </Descriptions>
 
-            {email.has_attachments && email.attachments.length > 0 && (
+            {emailData.has_attachments && emailData.attachments.length > 0 && (
               <>
                 <Divider style={{ margin: '16px 0' }} />
                 <div className={styles.attachments}>
                   <div className={styles.attachmentsTitle}>附件：</div>
                   <Space wrap>
-                    {email.attachments.map((attachment) => (
+                    {emailData.attachments.map((attachment) => (
                       <Button
                         key={attachment.id}
                         icon={<DownloadOutlined />}
@@ -222,16 +302,89 @@ const EmailDetail: React.FC = () => {
             <div
               className={styles.content}
               dangerouslySetInnerHTML={{
-                __html: email.content_type === 'text/html' ? email.content : email.content.replace(/\n/g, '<br/>'),
+                __html: emailData.content_type === 'text/html' ? emailData.content : emailData.content.replace(/\n/g, '<br/>'),
               }}
             />
+
+            {/* 预回复和已回复邮件列表 */}
+            {(emailData.replies.pre_replies.length > 0 ||
+              emailData.replies.auto_replies.length > 0 ||
+              emailData.replies.manual_replies.length > 0 ||
+              emailData.replies.quick_replies.length > 0) && (
+              <>
+                <Divider style={{ margin: '24px 0' }} />
+                <div className={styles.replies}>
+                  <Title level={5}>相关回复</Title>
+
+                  {emailData.replies.pre_replies.length > 0 && (
+                    <>
+                      <div className={styles.replySection}>
+                        <h4>预设回复</h4>
+                        <Table
+                          columns={replyColumns}
+                          dataSource={emailData.replies.pre_replies}
+                          rowKey="id"
+                          size="small"
+                          pagination={false}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {emailData.replies.auto_replies.length > 0 && (
+                    <>
+                      <div className={styles.replySection}>
+                        <h4>自动回复</h4>
+                        <Table
+                          columns={replyColumns}
+                          dataSource={emailData.replies.auto_replies}
+                          rowKey="id"
+                          size="small"
+                          pagination={false}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {emailData.replies.manual_replies.length > 0 && (
+                    <>
+                      <div className={styles.replySection}>
+                        <h4>手动回复</h4>
+                        <Table
+                          columns={replyColumns}
+                          dataSource={emailData.replies.manual_replies}
+                          rowKey="id"
+                          size="small"
+                          pagination={false}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {emailData.replies.quick_replies.length > 0 && (
+                    <>
+                      <div className={styles.replySection}>
+                        <h4>快速回复</h4>
+                        <Table
+                          columns={replyColumns}
+                          dataSource={emailData.replies.quick_replies}
+                          rowKey="id"
+                          size="small"
+                          pagination={false}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
 
             <Divider style={{ margin: '24px 0' }} />
 
             <div className={styles.quickReply}>
               <Title level={5}>快速回复</Title>
               <Form
-                onFinish={(values) => {
+                onFinish={() => {
                   history.push(`/email/compose?account_id=${accountId}&reply_to=${emailId}&reply_type=quick_reply`);
                 }}
               >
