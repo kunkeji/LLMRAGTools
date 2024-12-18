@@ -173,14 +173,28 @@ const EmailDetail: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      render: (record: EmailReply) => (
-        <Button
-          type="link"
-          onClick={() => history.push(`/email/outbox/${record.id}`)}
-        >
-          查看
-        </Button>
-      ),
+      render: (record: EmailReply) => {
+        // 如果是预回复并且状态不是send，跳转到编辑页面
+        if (emailData?.replies.pre_replies.some(reply => reply.id === record.id && reply.status !== 'sent')) {
+          return (
+            <Button
+              type="link"
+              onClick={() => history.push(`/email/compose?account_id=${accountId}&pre_reply_id=${record.id}`)}
+            >
+              编辑
+            </Button>
+          );
+        }
+        // 其他类型的回复跳转到详情页面
+        return (
+          <Button
+            type="link"
+            onClick={() => history.push(`/email/outbox/${record.id}`)}
+          >
+            查看
+          </Button>
+        );
+      },
     },
   ];
 
@@ -203,7 +217,7 @@ const EmailDetail: React.FC = () => {
               <Space>
                 <Button
                   type="primary"
-                  onClick={() => history.push(`/email/compose?account_id=${accountId}&reply_to=${emailId}&reply_type=reply`)}
+                  onClick={() => history.push(`/email/compose?account_id=${accountId}&reply_to=${emailId}&reply_type=manual_reply`)}
                 >
                   回复
                 </Button>

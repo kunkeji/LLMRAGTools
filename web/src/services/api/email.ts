@@ -84,6 +84,20 @@ export interface SendEmailParams {
   reply_type?: string;
 }
 
+declare namespace API {
+  interface EmailPreReply {
+    id: number;
+    subject: string;
+    recipients: string;
+    cc?: string;
+    bcc?: string;
+    content: string;
+    content_type: string;
+    created_at: string;
+    status: string;
+  }
+}
+
 export const emailApi = {
   // 获取邮件账户列表
   getAccounts: () => {
@@ -107,7 +121,7 @@ export const emailApi = {
     });
   },
 
-  // 更新邮件账户
+  // ���新邮件账户
   updateAccount: (id: number, params: UpdateEmailAccountParams) => {
     return apiRequest<API.EmailAccount>(`${API_URLS.EMAIL.ACCOUNTS}/${id}`, {
       method: 'PUT',
@@ -299,6 +313,28 @@ export const emailApi = {
   // 重新发送失败的邮件
   resendEmail: (emailId: number) => {
     return apiRequest<API.EmailOutbox>(`/api/user/email-outbox/${emailId}/resend`, {
+      method: 'POST',
+    });
+  },
+
+  // 获取预回复内容
+  getPreReply: (preReplyId: number) => {
+    return apiRequest<API.EmailOutbox>(`/api/user/email-outbox/${preReplyId}`, {
+      method: 'GET',
+    });
+  },
+
+  // 更新预回复邮件
+  updatePreReply: (id: number, params: SendEmailParams) => {
+    return apiRequest<API.EmailOutbox>(`/api/user/email-outbox/pre-reply/${id}`, {
+      method: 'PUT',
+      data: params,
+    });
+  },
+
+  // 发送预回复邮件
+  sendPreReply: (id: number) => {
+    return apiRequest<void>(`/api/user/email-outbox/${id}/send`, {
       method: 'POST',
     });
   },

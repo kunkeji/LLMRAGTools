@@ -248,9 +248,12 @@ declare namespace API {
 
   // 发件箱列表响应
   interface ListResponse<T> {
-    items: T[];
     total: number;
+    items: T[];
     page: number;
-    size: number;
+    page_size: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
   }
 }

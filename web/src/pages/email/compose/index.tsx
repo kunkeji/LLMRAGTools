@@ -22,6 +22,7 @@ const EmailCompose: React.FC = () => {
   const accountId = searchParams.get('account_id');
   const replyToEmailId = searchParams.get('reply_to');
   const replyType = searchParams.get('reply_type') || undefined;
+  const preReplyId = searchParams.get('pre_reply_id');
 
   // 工具栏配置
   const toolbarConfig: Partial<IToolbarConfig> = {
@@ -82,7 +83,7 @@ const EmailCompose: React.FC = () => {
       try {
         const email = await emailApi.getEmail(parseInt(accountId), parseInt(replyToEmailId));
         
-        // 设置收件人���主题
+        // 设置收件人主题
         form.setFieldsValue({
           recipients: email.from_address,
           subject: `Re: ${email.subject}`,
@@ -105,17 +106,53 @@ const EmailCompose: React.FC = () => {
     loadReplyEmail();
   }, [replyToEmailId, accountId]);
 
+  // 如果是预回复，加载预回复内容
+  useEffect(() => {
+    const loadPreReply = async () => {
+      if (!preReplyId) return;
+      try {
+        setLoading(true);
+        const preReplyData = await emailApi.getPreReply(parseInt(preReplyId));
+        form.setFieldsValue({
+          subject: preReplyData.subject,
+          recipients: preReplyData.recipients,
+          cc: preReplyData.cc,
+          bcc: preReplyData.bcc,
+          account_id: parseInt(accountId || ''),
+        });
+        // 设置编辑器内容
+        setHtml(preReplyData.content || '');
+      } catch (error: any) {
+        message.error(error.message || '加载预回复内容失败');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadPreReply();
+  }, [preReplyId]);
+
   // 处理发送邮件
   const handleSubmit = async (values: any) => {
     try {
       setLoading(true);
-      await emailApi.sendEmailDirect({
-        ...values,
-        content: html,
-        content_type: 'text/html',
-        reply_to_email_id: replyToEmailId ? parseInt(replyToEmailId) : undefined,
-        reply_type: replyType,
-      });
+      if (preReplyId) {
+        // 如果是预回复邮件，先更新内容再发送
+        await emailApi.updatePreReply(parseInt(preReplyId), {
+          ...values,
+          content: html,
+          content_type: 'text/html',
+        });
+        await emailApi.sendPreReply(parseInt(preReplyId));
+      } else {
+        // 普通邮件直接发送
+        await emailApi.sendEmailDirect({
+          ...values,
+          content: html,
+          content_type: 'text/html',
+          reply_to_email_id: replyToEmailId ? parseInt(replyToEmailId) : undefined,
+          reply_type: replyType,
+        });
+      }
       message.success('邮件发送成功');
       history.back();
     } catch (error: any) {

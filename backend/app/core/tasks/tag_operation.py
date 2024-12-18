@@ -46,6 +46,7 @@ def create_tag_operation_task(email_id: int) -> Task:
 @task_registry.register(name="tag_operation")
 async def tag_operation(email_id: int, tag_operation: str) -> Dict[str, Any]:
     """标签操作"""
+
     with SessionLocal() as db:
         email = db.query(Email).filter(Email.id == email_id).first()
         if not email:
@@ -89,11 +90,13 @@ async def pre_reply(email_id: int,auto_reply: bool = False) -> Dict[str, Any]:
         email = db.query(Email).filter(Email.id == email_id).first()
         if not email:
             raise ValueError(f"邮件不存在: {email_id}")
-            
         # 获取账户和用户信息
         account = email.account
         user = account.user
-        
+        # 查询有没有预回复或者已回复的相关文件
+        email_outbox = db.query(EmailOutbox).filter(EmailOutbox.reply_to_email_id == email_id).first()
+        if email_outbox:
+            return {"status": "success"}
         # 获取 EMAIL_REPLY 功能的映射信息
         feature_mapping = db.query(LLMFeatureMapping).filter(
             LLMFeatureMapping.user_id == user.id,

@@ -66,13 +66,12 @@ const loadEmails = async (page = pagination.current, pageSize = pagination.pageS
         params.end_date = dateRange[1];
       }
   
-      const data = await emailApi.getOutboxList(params);
-      // 直接使用返回的数据数组
-      setEmails(data || []);
+      const response = await emailApi.getOutboxList(params);
+      setEmails(response.items || []);
       setPagination({
-        current: page,
-        pageSize,
-        total: data.length, // 使用数组长度作为总数
+        current: response.page,
+        pageSize: response.page_size,
+        total: response.total,
       });
     } catch (error: any) {
       message.error(error.message || '加载邮件列表失败');
