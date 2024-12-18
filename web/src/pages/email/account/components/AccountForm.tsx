@@ -151,6 +151,7 @@ const AccountForm: React.FC<AccountFormProps> = ({
     try {
       // 确保所有服务器配置都被提交
       const submitData = {
+        display_name: values.display_name,
         email_address: values.email_address,
         auth_token: values.auth_token,
         smtp_host: isCustom ? values.smtp_host : selectedProvider?.smtp_host,
@@ -188,6 +189,13 @@ const AccountForm: React.FC<AccountFormProps> = ({
       }}
       style={{ maxWidth: 600 }}
     >
+      <Form.Item
+        name="display_name"
+        label="名称"
+      >
+        <Input placeholder="请输入名称,作为发件时对方可以显示的名称" />
+      </Form.Item>
+
       <Form.Item
         name="email_address"
         label={

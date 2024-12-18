@@ -169,7 +169,7 @@ const EmailCompose: React.FC = () => {
             <Select placeholder="请选择发件账户">
               {accounts.map(account => (
                 <Option key={account.id} value={account.id}>
-                  {account.email_address}
+                  {account.display_name+"("+account.email_address+")"}
                 </Option>
               ))}
             </Select>

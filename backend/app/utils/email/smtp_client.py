@@ -91,17 +91,15 @@ class SMTPClient:
             # 创建邮件
             msg = MIMEMultipart()
             msg["Subject"] = subject
-            msg["From"] = formataddr((from_name or settings.EMAILS_FROM_NAME, self.username))
+            msg["From"] = formataddr((from_name or self.display_name, self.username))
             msg["To"] = ", ".join(to_addresses)
             
             if cc_addresses:
                 msg["Cc"] = ", ".join(cc_addresses)
             if bcc_addresses:
                 msg["Bcc"] = ", ".join(bcc_addresses)
-            
             # 添加正文
             msg.attach(MIMEText(content, 'html', "utf-8"))
-            
             # 连接SMTP服务器并发送
             smtp = aiosmtplib.SMTP(
                 hostname=self.host,
