@@ -154,6 +154,11 @@ export default defineConfig({
       component: './account/settings',
     },
     {
+      path: '/demo',
+      name: '测试页面',
+      component: './demo',
+    },
+    {
       path: '*',
       layout: false,
       component: './404',

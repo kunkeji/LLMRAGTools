@@ -1,6 +1,3 @@
-"""
-智谱AI SDK调用实现
-"""
 from typing import Optional, Dict, Any, AsyncGenerator
 from zhipuai import ZhipuAI
 
@@ -11,20 +8,9 @@ def generate(
     model: str = "glm-4-flash",
     temperature: float = 0.7,
     max_tokens: Optional[int] = None,
+    proxy_url: Optional[str] = None,
     **kwargs: Any
 ) -> str:
-    """
-    生成文本
-    
-    Args:
-        prompt: 提示文本
-        api_key: 智谱API密钥
-        model: 模型名称
-        temperature: 温度
-        max_tokens: 最大生成token数
-        message: 消息列表
-        **kwargs: 其他参数
-    """
     client = ZhipuAI(api_key=api_key)
     messages = [
         {"role": "system", "content": prompt},
@@ -48,19 +34,9 @@ async def generate_stream(
     model: str = "glm-4-flash",
     temperature: float = 0.7,
     max_tokens: Optional[int] = None,
+    proxy_url: Optional[str] = None,
     **kwargs: Any
 ) -> AsyncGenerator[str, None]:
-    """
-    流式生成文本
-    
-    Args:
-        prompt: 提示文本
-        api_key: 智谱API密钥
-        model: 模型名称
-        temperature: 温度
-        max_tokens: 最大生成token数
-        **kwargs: 其他参数
-    """
     client = ZhipuAI(api_key=api_key)
     messages = [
         {"role": "system", "content": prompt},

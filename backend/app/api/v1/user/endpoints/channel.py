@@ -161,7 +161,8 @@ async def test_channel(
             message=test_message,
             api_key=channel.api_key,
             provider=channel.model_type,
-            model=channel.model
+            model=channel.model,
+            proxy_url=channel.proxy_url
         )
 
         # 获取第一个响应并计算时间

@@ -65,7 +65,8 @@ async def sync_email_tag(email_id: int) -> Dict[str, Any]:
             message="邮件内容："+email.content,
             api_key=llm_model.api_key,
             provider=llm_model.model_type,
-            model=llm_model.model
+            model=llm_model.model,
+            proxy_url=llm_model.proxy_url
         )
         # 先将tag_id转换成int
         tag_id = int(tag_id)

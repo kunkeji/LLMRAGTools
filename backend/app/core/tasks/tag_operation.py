@@ -116,7 +116,8 @@ async def pre_reply(email_id: int,auto_reply: bool = False) -> Dict[str, Any]:
                 message="邮件内容："+email.content,
                 api_key=api_key,
                 provider=model_type,
-                model=model
+                model=model,
+                proxy_url=channel.proxy_url
             )
             print(f"预回复邮件: {llm_response}")
             # 创建预回复邮件的输入数据

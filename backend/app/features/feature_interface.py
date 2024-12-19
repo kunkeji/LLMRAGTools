@@ -52,7 +52,8 @@ class FeatureInterface:
                 message=message,
                 api_key=mapping.channel.api_key,
                 provider=mapping.channel.model_type,
-                model=mapping.channel.model
+                model=mapping.channel.model,
+                proxy_url=mapping.channel.proxy_url
             ):
                 yield chunk  # 添加换行符以确保正确的流式输出
             # 更新使用统计
