@@ -11,7 +11,8 @@ from app.utils.email.tag_actions import TagAction
 from app.models.llm_feature_mapping import LLMFeatureMapping
 from app.utils.llm.client import LLMClient
 from app.crud.email_outbox import email_outbox
-from app.schemas.email_outbox import EmailOutbox, EmailOutboxCreate
+from app.models.email_outbox import EmailOutbox
+from app.schemas.email_outbox import EmailOutboxCreate
 
 # 创建标签对应操作的任务
 def create_tag_operation_task(email_id: int) -> Task:
@@ -85,18 +86,18 @@ async def tag_operation(email_id: int, tag_operation: str) -> Dict[str, Any]:
 
 # 邮件预回复方法
 async def pre_reply(email_id: int,auto_reply: bool = False) -> Dict[str, Any]:
-    """邮件预回复"""
     with SessionLocal() as db:
         email = db.query(Email).filter(Email.id == email_id).first()
+        print(f"邮件: {email}")
         if not email:
             raise ValueError(f"邮件不存在: {email_id}")
         # 获取账户和用户信息
         account = email.account
         user = account.user
-        # 查询有没有预回复或者已回复的相关文件
-        email_outbox = db.query(EmailOutbox).filter(EmailOutbox.reply_to_email_id == email_id).first()
-        if email_outbox:
-            return {"status": "success"}
+        # 检查是否已经存在预回复
+        email_outbox_obj = db.query(EmailOutbox).filter(EmailOutbox.reply_to_email_id == email_id).first()
+        if email_outbox_obj:
+            return {"status": "success", "message": "已存在预回复邮件"}
         # 获取 EMAIL_REPLY 功能的映射信息
         feature_mapping = db.query(LLMFeatureMapping).filter(
             LLMFeatureMapping.user_id == user.id,
@@ -131,6 +132,7 @@ async def pre_reply(email_id: int,auto_reply: bool = False) -> Dict[str, Any]:
                 reply_to_email_id=email_id
             )
             # 如果是自动回复则直接发送
+            result = False
             if auto_reply:
                 email_in.reply_type = "auto_reply"
             else:

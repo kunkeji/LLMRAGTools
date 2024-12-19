@@ -2,13 +2,14 @@
 LLM统一调用工具
 """
 from typing import Optional, Dict, Any, AsyncGenerator
-from .providers import zhipu_sdk, RAGflow
+from .providers import zhipu_sdk, RAGflow, Openai
 from .mapping import DEFAULT_PROVIDER, MODEL_MAPPING
 
 class LLMClient:
     _providers = {
         "zhipu": zhipu_sdk,
-        "ragflow": RAGflow
+        "ragflow": RAGflow,
+        "openai": Openai
     }
     
     @staticmethod
