@@ -5,7 +5,7 @@ export PYTHONPATH=$PYTHONPATH:$(pwd)
 
 # 设置 uvicorn 参数
 # 默认使用.env中的PORT
-PORT=${PORT:-8112}
+PORT=${PORT:-8111}
 if [ "$RUN_MODE" = "prod" ]; then
     uvicorn app.main:app --host 127.0.0.1 --port $PORT --workers 4
 else

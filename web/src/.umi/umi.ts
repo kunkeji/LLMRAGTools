@@ -3,7 +3,7 @@
 // DO NOT CHANGE IT MANUALLY!
 import './core/polyfill';
 import 'antd/dist/reset.css';
-import { renderClient } from 'D:/wwwroot/AgentTools/web/node_modules/@umijs/renderer-react';
+import { renderClient } from 'D:/wwwroot/LLMRAGTools/web/node_modules/@umijs/renderer-react';
 import { getRoutes } from './core/route';
 import { createPluginManager } from './core/plugin';
 import { createHistory } from './core/history';

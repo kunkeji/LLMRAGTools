@@ -1,222 +1,69 @@
-# Agent Tools Backend
+# LLMRAGTools Backend
 
-基于 FastAPI + MySQL 的后端服务框架，提供用户认证、任务调度、LLM 调用等功能。
+LLMRAGTools 是一个专为大语言模型（LLM）落地设计的中间件框架。它提供了灵活的 LLM 映射机制、RAG 集成、插件化开发支持以及强大的异步任务处理能力，让开发者能够快速构建和部署基于 LLM 的应用。
 
-## 目录结构
+## 核心特性
 
-```
-backend/
-├── app/                                # 应用主目录
-│   ├── api/                           # API接口
-│   │   └── v1/                        # V1版本API
-│   │       ├── admin/                 # 管理员接口
-│   │       │   ├── endpoints/
-│   │       │   │   └── auth.py       # 管理员认证接口
-│   │       │   └── router.py         # 管理员路由
-|   │       ├── deps/
-|   │       │   └── auth.py           # 依赖注入
-|   │       └── user/                  # 用户接口
-│   │           ├── endpoints/
-│   │           │   ├── auth.py       # 用户认证接口
-│   │           │   ├── password.py   # 密码管理接口
-│   │           │   └── profile.py    # 个人资料接口
-│   │           └── router.py         # 用户路由
-│   ├── core/                          # 核心模块
-│   │   ├── config.py                 # 配置管理
-│   │   ├── docs.py                   # API文档配置
-│   │   ├── exceptions.py             # 异常处理
-│   │   ├── security/                 # 安全相关
-│   │   │   ├── jwt.py               # JWT处理
-│   │   │   └── password.py          # 密码处理
-│   │   └── tasks/                    # 任务调度
-│   │       ├── examples.py           # 示例任务
-│   │       ├── registry.py           # 任务注册器
-│   │       ├── scheduler.py          # 调度器
-│   │       └── __init__.py
-│   ├── crud/                          # 数据库操作
-│   │   ├── admin.py                  # 管理员CRUD
-│   │   ├── base.py                   # 基础CRUD
-│   │   ├── user.py                   # 用户CRUD
-│   │   └── verification_code.py      # 验证码CRUD
-│   ├── db/                            # 数据库配置
-│   │   ├── base.py                   # 数据库基础配置
-│   │   ├── base_class.py            # 基础模型类
-│   │   └── session.py               # 会话管理
-│   ├── models/                        # 数据模型
-│   │   ├── admin.py                  # 管理员模型
-│   │   ├── base.py                   # 基础模型
-│   │   ├── base_model.py            # 模型基类
-│   │   ├── task.py                  # 任务模型
-│   │   ├── user.py                  # 用户模型
-│   │   └── verification_code.py     # 验证码模型
-│   ├── schemas/                       # 数据验证
-│   │   ├── admin.py                  # 管理员Schema
-│   │   ├── avatar.py                # 头像Schema
-│   │   ├── base.py                  # 基础Schema
-│   │   ├── common.py                # 通用Schema
-│   │   ├── file.py                  # 文件Schema
-│   │   ├── filters.py               # 过滤Schema
-│   │   ├── response.py              # 响应Schema
-│   │   ├── sort.py                  # 排序Schema
-│   │   ├── token.py                 # Token Schema
-│   │   ├── user.py                  # 用户Schema
-│   │   └── verification_code.py     # 验证码Schema
-│   └── utils/                         # 工具函数
-│       ├── email.py                  # 邮件工具
-│       ├── email_templates/          # 邮件模板
-│       │   ├── reset_password.html  # 重置密码模板
-│       │   ├── test_email.html     # 测试邮件模板
-│       │   └── verification_code.html # 验证码模板
-│       ├── file.py                   # 文件处理
-│       ├── llm/                      # LLM集成
-│       │   ├── client.py            # LLM客户端
-│       │   ├── mapping.py           # 模型映射
-│       │   ├── providers/           # LLM提供者
-│       │   │   └── zhipu_sdk.py    # 智谱AI实现
-│       │   └── __init__.py
-│       └── logging.py               # 日志工具
-├── docker/                            # Docker配置
-│   ├── docker-compose.yml           # 容器编排
-│   └── mysql/                       # MySQL配置
-│       └── conf.d/                  # MySQL自定义配置
-├── static/                            # 静态文件
-│   └── uploads/                     # 上传文件
-│       └── avatars/                 # 头像文件
-├── tests/                             # 测试用例
-│   ├── test_llm.py                  # LLM测试
-│   └── __init__.py
-├── .env                              # 环境配置
-├── .gitignore                        # Git忽略文件
-├── README.md                         # 项目说明
-├── requirements.txt                  # 依赖管理
-├── run.bat                          # Windows启动脚本
-└── scheduler_run.py                 # 调度器启动脚本
-```
+### 1. LLM 映射与集成
+- 支持多种 LLM 提供商（OpenAI、Anthropic、智谱等）
+- 统一的调用接口，灵活的模型映射
+- 支持流式输出和普通对话模式
+- 内置 Token 计数和成本控制
 
-## 功能模块
+### 2. RAG（检索增强生成）支持
+- 文档向量化和存储
+- 相似度检索
+- 上下文组装和优化
+- 支持多种向量数据库
 
-### 1. 用户认证系统
+### 3. 插件化架构
+- 松耦合的模块设计
+- 简单的插件开发流程
+- 丰富的扩展点
 
-#### 1.1 用户注册
-```python
-POST /api/user/register
-{
-    "email": "user@example.com",
-    "username": "username",
-    "password": "password",
-    "verification_code": "123456"
-}
-```
+### 4. 异步任务系统
+- 基于装饰器的任务注册
+- 支持定时任务和周期任务
+- 多线程执行能力
+- 任务状态监控
 
-#### 1.2 用户登录
-```python
-POST /api/user/login
-{
-    "username": "username",
-    "password": "password"
-}
-```
+## 快速开始
 
-#### 1.3 密码重置
-```python
-POST /api/user/password/reset
-{
-    "email": "user@example.com",
-    "code": "123456",
-    "new_password": "newpassword"
-}
-```
+### 环境要求
+- Python 3.8+
+- MySQL 5.7+
+- Redis 6.0+
 
-### 2. 管理员系统
+### 安装步骤
 
-#### 2.1 管理员登录
-```python
-POST /api/admin/login
-{
-    "username": "admin",
-    "password": "password"
-}
-```
-
-#### 2.2 创建管理员
-```python
-POST /api/admin/create
-{
-    "username": "newadmin",
-    "email": "admin@example.com",
-    "password": "password",
-    "role": "admin"
-}
-```
-
-### 3. 文件处理
-
-#### 3.1 头像上传
-```python
-POST /api/user/profile/me/avatar
-Content-Type: multipart/form-data
-{
-    "file": <file>
-}
-```
-
-### 4. 任务调度系统
-
-```python
-# 注册任务
-@task_registry.register(name="task_name", interval_minutes=5)
-async def your_task():
-    pass
-
-# 创建定时任务
-task = Task(
-    name="Task Name",
-    func_name="task_name",
-    scheduled_at=datetime.now() + timedelta(minutes=5)
-)
-```
-
-### 5. LLM集成
-
-#### 5.1 普通文本生成
-```python
-response = await LLMClient.generate(
-    prompt="系统提示",
-    message="用户消息",
-    api_key="your-api-key",
-    model="glm-4-flash"
-)
-```
-
-#### 5.2 流式文本生成
-```python
-async for chunk in LLMClient.generate_stream(
-    prompt="系统提示",
-    message="用户消息",
-    api_key="your-api-key",
-    model="glm-4-flash"
-):
-    print(chunk, end="")
-```
-
-## 环境配置
-
-1. 创建虚拟环境：
+1. 克隆仓库
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-.venv\Scripts\activate     # Windows
+git clone https://github.com/yourusername/LLMRAGTools.git
+cd LLMRAGTools/backend
 ```
 
-2. 安装依赖：
+2. 安装依赖
 ```bash
 pip install -r requirements.txt
 ```
 
-3. 配置环境变量：
-复制 `.env.example` 到 `.env` 并修改相关配置。
+3. 配置环境变量
+```bash
+cp .env.example .env
+# 编辑 .env 文件，配置必要的参数
+```
 
-4. 启动服务：
+4. 初始化数据库
+```bash
+# 创建数据库
+mysql -u root -p
+CREATE DATABASE agent_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+# 执行数据库迁移
+alembic upgrade head
+```
+
+5. 启动服务
 ```bash
 # 开发模式
 python run.py
@@ -225,101 +72,175 @@ python run.py
 RUN_MODE=prod python run.py
 ```
 
-## 数据库表结构
+## 项目结构
 
-### users 表
-- 用户基本信息
-- 认证相关字段
-- 个人资料
-
-### admins 表
-- 管理员信息
-- 角色权限
-
-### verification_codes 表
-- 验证码记录
-- 用途标记
-- 过期时间
-
-### tasks 表
-- 任务信息
-- 执行状态
-- 调度时间
-
-## API 响应格式
-
-所有API响应都遵循统一格式：
-```json
-{
-    "code": "200",
-    "message": "Success",
-    "data": null
-}
+```
+backend/
+├── alembic/              # 数据库迁移
+├── app/
+│   ├── api/             # API 接口
+│   │   └── v1/
+│   │       ├── admin/  # 管理接口
+│   │       └── user/   # 用户接口
+│   ├── core/           # 核心功能
+│   │   ├── config.py  # 配置管理
+│   │   └── tasks/     # 任务系统
+│   ├── crud/          # 数据库操作
+│   ├── db/            # 数据库配置
+│   ├── models/        # 数据库模型
+│   ├── schemas/       # 数据验证
+│   └── utils/         # 工具函数
+├── logs/              # 日志文件
+├── static/           # 静态文件
+├── tests/            # 测试用例
+├── uploads/          # 上传文件
+└── docs/            # 文档
 ```
 
-## 开发规范
+## 配置说明
 
-1. 代码风格遵循 PEP 8
-2. 所有函数和类必须有文档字符串
-3. 使用 Type Hints 进行类型注解
-4. 异常必须被妥善处理和记录
-5. 新功能必须编写测试用例
+主要配置项（在 .env 文件中设置）：
 
-## 部署说明
-
-1. 使用 Docker Compose 启动服务：
 ```bash
-docker-compose up -d
+# 数据库配置
+DATABASE_URL=mysql+pymysql://user:pass@localhost:3306/agent_db
+
+# JWT 配置
+SECRET_KEY=your-secret-key
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Redis 配置
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB=0
+
+# SMTP 配置
+SMTP_HOST=smtp.example.com
+SMTP_PORT=465
+SMTP_USER=your-email
+SMTP_PASSWORD=your-password
+
+# 系统配置
+RUN_MODE=dev
+PORT=8111
+LOG_LEVEL=INFO
+TIMEZONE=Asia/Shanghai
 ```
 
-2. 数据库迁移：
-```bash
-# 创建迁移脚本
-alembic revision --autogenerate -m "message"
+## API 文档
 
-# 执行迁移
-alembic upgrade head
+启动服务后访问：
+- Swagger UI: http://localhost:8111/docs
+- ReDoc: http://localhost:8111/redoc
+
+### 主要接口
+
+1. 用户管理
+   - POST /api/v1/user/register - 用户注册
+   - POST /api/v1/user/login - 用户登录
+   - GET /api/v1/user/me - 获取当前用户信息
+
+2. 邮件管理
+   - GET /api/v1/email/inbox - 收件箱列表
+   - GET /api/v1/email/outbox - 发件箱列表
+   - POST /api/v1/email/send - 发送邮件
+   - GET /api/v1/email/{id} - 邮件详情
+
+3. 任务管理
+   - POST /api/v1/task/create - 创建任务
+   - GET /api/v1/task/list - 任务列表
+   - GET /api/v1/task/{id} - 任务详情
+
+## 开发指南
+
+### 1. 添加新的 API 接口
+
+```python
+from fastapi import APIRouter, Depends
+from app.schemas.response import Response
+from app.api.deps import get_current_user
+
+router = APIRouter()
+
+@router.post("/custom-endpoint")
+async def custom_endpoint(
+    data: YourSchema,
+    current_user = Depends(get_current_user)
+):
+    result = await your_business_logic(data)
+    return Response(code=200, data=result)
+```
+
+### 2. 创建新的任务
+
+```python
+from app.core.tasks import task_registry
+
+@task_registry.register(
+    name="custom_task",
+    interval_minutes=60
+)
+async def custom_task():
+    # 实现任务逻辑
+    pass
+```
+
+### 3. 添加新的数据模型
+
+```python
+from app.db.base_class import Base
+from sqlalchemy import Column, Integer, String
+
+class YourModel(Base):
+    __tablename__ = "your_table"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), index=True)
+    description = Column(String(200))
 ```
 
 ## 常见问题
 
-1. 数据库连接失败
-- 检查 MySQL 服务是否启动
-- 验证数据库连接信息
+1. 数据库连接问题
+   - 检查数据库配置是否正确
+   - 确保数据库服务正在运行
+   - 验证用户权限
 
 2. 邮件发送失败
-- 确认 SMTP 配置正确
-- 检查网络连接
+   - 检查 SMTP 配置
+   - 确认邮箱账号密码
+   - 查看错误日志
 
-3. 文件上传失败
-- 检查目录权限
-- 确认文件大小限制 
+3. 任务执行异常
+   - 检查 Redis 连接
+   - 确认任务注册状态
+   - 查看任务日志
 
-待完善：
-a. 安全相关：
-⚠️ 请求速率限制（Rate Limiting）
-⚠️ CORS 详细配置
-⚠️ 安全中间件（XSS、CSRF防护）
-⚠️ 敏感数据加密存储
-b. 日志系统：
-⚠️ 操作日志记录
-⚠️ 审计日志
-⚠️ 日志轮转和清理策略
-c. 缓存系统：
-⚠️ Redis 缓存集成
-⚠️ 缓存策略实现
-d. 监控和维护：
-⚠️ 健康检查接口完善
-⚠️ 性能监控
-⚠️ 系统指标收集
-e. 其他功能：
-⚠️ WebSocket 支持（实时通知）
-⚠️ 批量操作接口
-⚠️ 导入/导出功能
-⚠️ 更多 LLM 提供者的支持
-f. 开发和部署相关：
-⚠️ 单元测试覆盖
-⚠️ CI/CD 配置
-⚠️ 生产环境部署文档
-⚠️ API 文档完善
-⚠️ 开发环境配置文档
+## 更新日志
+
+### v1.0.0 (2023-12-22)
+- 初始版本发布
+- 基础功能实现
+- 邮件系统集成
+- 任务系统实现
+
+## 待开发功能
+
+- [ ] 更多 LLM 提供商支持
+- [ ] 高级 RAG 策略
+- [ ] 分布式任务支持
+- [ ] 监控告警系统
+- [ ] 更多向量数据库集成
+- [ ] WebSocket 实时通信
+
+## 贡献指南
+
+1. Fork 项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 发起 Pull Request
+
+## 许可证
+
+MIT License

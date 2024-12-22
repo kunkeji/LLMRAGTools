@@ -8,6 +8,8 @@ from app.models.base_model import BaseDBModel
 
 class FeatureType(str, Enum):
     """功能类型枚举"""
+    # 聊天
+    CHAT = "CHAT"
     DOCUMENT_WRITE = "DOCUMENT_WRITE"      # 文档写作
     DOCUMENT_IMPROVE = "DOCUMENT_IMPROVE"  # 文档改进
     DOCUMENT_SUMMARY = "DOCUMENT_SUMMARY"  # 文档总结

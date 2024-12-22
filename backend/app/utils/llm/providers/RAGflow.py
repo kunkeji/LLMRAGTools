@@ -5,8 +5,19 @@ import re
 
 from sqlalchemy import true
 
+def get_session_id(api_key: str, proxy_url: str, agent_id: str):
+    # /api/v1/agents/{agent_id}/sessions
+    headers = {
+        'content-Type': 'application/json',
+        'Authorization': f'Bearer {api_key}'
+    }
+    response = requests.post(f'{proxy_url}/api/v1/agents/{agent_id}/sessions', headers=headers, data={})
+    response.raise_for_status()
+    return response.json()['data']['id']
+
 def generate(prompt: str, message: str, api_key: str, model: str, proxy_url: str, **kwargs: Any) -> str:
     # 请求RAGflow API proxy_url
+    session_id = get_session_id(api_key, proxy_url, model)
     headers = {
         'content-Type': 'application/json',
         'Authorization': f'Bearer {api_key}'
@@ -14,16 +25,19 @@ def generate(prompt: str, message: str, api_key: str, model: str, proxy_url: str
     data = {
         "question":prompt + message,
         "stream": False,
-        "session_id":'74531518bdde11efa70400155dadeedc'
+        "session_id":session_id
     }
     agent_id = model
     response = requests.post(f'{proxy_url}/api/v1/agents/{agent_id}/completions', headers=headers, data=json.dumps(data))
-    print(response.json())
     response.raise_for_status()
-    return response.json()['answer']
+    return response.json()['data']['answer']
     # 返回文本
 
 async def generate_stream(prompt: str, message: str, api_key: str, model: str, proxy_url: str, **kwargs: Any) -> AsyncGenerator[str, None]:
+
+    session_id = get_session_id(api_key, proxy_url, model)
+    # 这里需要获取到session_id才能进行流式输出
+    
     # 请求RAGflow API proxy_url
     headers = {
         'content-Type': 'application/json',
@@ -32,7 +46,7 @@ async def generate_stream(prompt: str, message: str, api_key: str, model: str, p
     data = {
         "question": prompt + message,
         "stream": True,
-        "session_id": '74531518bdde11efa70400155dadeedc'
+        "session_id": session_id
     }
 
     agent_id = model
@@ -56,7 +70,7 @@ async def generate_stream(prompt: str, message: str, api_key: str, model: str, p
                                 # 检查是否是运行提示信息
                                 if re.match(r'\*.*?\* is running...🕞', answer):
                                     # print("跳过运行提示信息")  # 调试信息
-                                    continue
+                                    yield ''
                                 # 获取新增的内容
                                 new_content = answer[previous_length:]
                                 # print(f"新增内容: {new_content}")  # 调试信息

@@ -7,7 +7,7 @@ export default defineConfig({
   initialState: {},
   request: {},
   layout: {
-    title: '壳林智能AI',
+    title: 'LLMRAGTools',
     locale: false,
   },
   routes: [
@@ -26,8 +26,8 @@ export default defineConfig({
     },
     {
       path: '/dashboard',
-      name: '仪表盘',
-      icon: 'dashboard',
+      name: '首页',
+      icon: 'home',
       component: './dashboard',
     },
     {
@@ -154,11 +154,6 @@ export default defineConfig({
       component: './account/settings',
     },
     {
-      path: '/demo',
-      name: '测试页面',
-      component: './demo',
-    },
-    {
       path: '*',
       layout: false,
       component: './404',
@@ -167,7 +162,7 @@ export default defineConfig({
   fastRefresh: true,
   proxy: {
     '/api': {
-      target: 'http://127.0.0.1:8112',
+      target: 'http://127.0.0.1:8111',
       changeOrigin: true,
       pathRewrite: { '^/api': '/api' },
     },

@@ -81,6 +81,8 @@ async def save_mapping(
     
     return response_success(data=mapping) 
 
+
+# 功能映射接口
 @router.post("/execute/{feature_type}", response_class=StreamingResponse)
 async def execute_feature(
     *,
@@ -89,12 +91,6 @@ async def execute_feature(
     feature_type: FeatureType,
     request: MessageRequest
 ):
-    """执行特定功能
-    
-    Args:
-        feature_type: 功能类型
-        request: 包含用户消息的请求体
-    """
     try:
         # 使用功能映射接口执行功能
         stream = FeatureInterface.execute_feature_stream(

@@ -88,7 +88,6 @@ async def tag_operation(email_id: int, tag_operation: str) -> Dict[str, Any]:
 async def pre_reply(email_id: int,auto_reply: bool = False) -> Dict[str, Any]:
     with SessionLocal() as db:
         email = db.query(Email).filter(Email.id == email_id).first()
-        print(f"邮件: {email}")
         if not email:
             raise ValueError(f"邮件不存在: {email_id}")
         # 获取账户和用户信息
@@ -120,7 +119,12 @@ async def pre_reply(email_id: int,auto_reply: bool = False) -> Dict[str, Any]:
                 model=model,
                 proxy_url=channel.proxy_url
             )
-            print(f"预回复邮件: {llm_response}")
+            print("=======================邮件回复==========================")
+            print(model_type)
+            print(model)
+            print(api_key)
+            print(prompt)
+            print("=================================================")
             # 创建预回复邮件的输入数据
             email_in = EmailOutboxCreate(
                 subject=f"RE: {email.subject}",
