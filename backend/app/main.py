@@ -52,7 +52,7 @@ app = FastAPI(
         "email": "kunkeji@qq.com",
     },
     servers=[
-        {"url": "http://localhost:8112", "description": "开发环境"},
+        {"url": "http://localhost:8111", "description": "开发环境"},
         {"url": "http://test-api.example.com", "description": "测试环境"},
         {"url": "https://api.example.com", "description": "生产环境"},
     ] if settings.DEBUG else [

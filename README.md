@@ -38,7 +38,7 @@ AgentTools 是一个专为大语言模型（LLM）落地设计的中间件框架
 
 ### 安装
 ```bash
-git clone https://github.com/kunkeji/AgentTools.git
+git clone https://github.com/kunkeji/LLMRAGTools.git
 
 # 创建数据库、导入sql文件
 # sql文件在backend/sql/agent_db.sql
@@ -78,7 +78,7 @@ SMTP_HOST=smtp.qq.com
 SMTP_USER=admin@qq.com
 SMTP_PASSWORD=jgpxvkp****
 EMAILS_FROM_EMAIL=admin@qq.com
-EMAILS_FROM_NAME="Agent Tools"
+EMAILS_FROM_NAME="LLMRAGTools"
 
 # 运行时配置
 RUN_MODE=dev

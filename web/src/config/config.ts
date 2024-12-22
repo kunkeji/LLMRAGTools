@@ -4,7 +4,7 @@ interface EnvConfig {
 }
 
 const config: EnvConfig = {
-  API_URL: process.env.API_URL || 'http://127.0.0.1:8112',
+  API_URL: process.env.API_URL || 'http://127.0.0.1:8111',
   API_PREFIX: process.env.API_PREFIX || '/api',
 };
 

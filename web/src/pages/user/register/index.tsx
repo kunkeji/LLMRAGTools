@@ -75,9 +75,9 @@ const RegisterPage: React.FC = () => {
       <div className={styles.content}>
         <div className={styles.top}>
           <div className={styles.header}>
-            <h1>代理工具平台</h1>
+            <h1>大语言模型插件式框架</h1>
           </div>
-          <div className={styles.desc}>专业的代理管理工具</div>
+          <div className={styles.desc}>专业的大语言模型插件式框架</div>
         </div>
 
         <div className={styles.main}>
