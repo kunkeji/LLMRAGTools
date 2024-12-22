@@ -1,11 +1,11 @@
 
 
 ![logo](./icon128.png)
-# AgentTools
+# LLMRAGTools
 
 
 
-# AgentTools Backend
+# LLMRAGTools Backend
 
 AgentTools 是一个专为大语言模型（LLM）落地设计的中间件框架。它提供了灵活的 LLM 映射机制、RAG 集成、插件化开发支持以及强大的异步任务处理能力，让开发者能够快速构建和部署基于 LLM 的应用。
 
@@ -43,7 +43,7 @@ git clone https://github.com/kunkeji/LLMRAGTools.git
 # 创建数据库、导入sql文件
 # sql文件在backend/sql/agent_db.sql
 
-cd AgentTools/backend
+cd LLMRAGTools/backend
 # 创建虚拟环境
 python -m venv venv
 # 激活虚拟环境
